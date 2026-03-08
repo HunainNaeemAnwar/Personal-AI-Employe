@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://personal-ai-employee.local/schemas/task-file.json",
+  "title": "Task File",
+  "description": "Schema for task files created by Watchers in the Personal AI Employee system",
+  "type": "object",
+  "required": ["type", "source", "timestamp", "priority", "status"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["email", "file_drop", "transaction"],
+      "description": "Category of task"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Origin of task (email address or file path)",
+      "examples": [
+        "sender@example.com",
+        "/path/to/file.pdf"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When task was created (ISO 8601 format)",
+      "examples": ["2026-03-07T10:30:00Z"]
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["high", "medium", "low"],
+      "description": "Urgency level of task"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "completed"],
+      "description": "Current state of task"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Subject line (for emails) or filename (for files)",
+      "examples": ["Invoice Request", "quarterly-report.pdf"]
+    },
+    "content": {
+      "type": "string",
+      "description": "Task details and context (markdown format)"
+    },
+    "suggested_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Recommended next steps",
+      "examples": [
+        ["Reply to sender", "Forward to accounting", "Archive after processing"]
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional type-specific metadata",
+      "properties": {
+        "email_id": {
+          "type": "string",
+          "description": "Gmail message ID (for email type)"
+        },
+        "file_size": {
+          "type": "integer",
+          "description": "File size in bytes (for file_drop type)"
+        },
+        "file_extension": {
+          "type": "string",
+          "description": "File extension (for file_drop type)",
+          "examples": [".pdf", ".docx", ".xlsx"]
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "type": "email",
+      "source": "client@example.com",
+      "timestamp": "2026-03-07T10:30:00Z",
+      "priority": "high",
+      "status": "pending",
+      "subject": "Invoice Request for January",
+      "content": "Hi, can you send me the invoice for January services?",
+      "suggested_actions": [
+        "Generate invoice",
+        "Send via email",
+        "Log in accounting system"
+      ],
+      "metadata": {
+        "email_id": "18d4f2a3b5c6e7f8"
+      }
+    },
+    {
+      "type": "file_drop",
+      "source": "/Users/john/Documents/Dropbox/contract.pdf",
+      "timestamp": "2026-03-07T14:15:00Z",
+      "priority": "medium",
+      "status": "pending",
+      "subject": "contract.pdf",
+      "content": "New contract document dropped for review",
+      "suggested_actions": [
+        "Review contract terms",
+        "Extract key dates",
+        "Add to tracking system"
+      ],
+      "metadata": {
+        "file_size": 245760,
+        "file_extension": ".pdf"
+      }
+    }
+  ]
+}
