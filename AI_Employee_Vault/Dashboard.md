@@ -63,6 +63,7 @@ claude "Update Dashboard.md with current status"
 
 ## Notes
 
-- This dashboard is automatically updated by Claude Code
+- **Bronze Tier**: This dashboard requires manual updates. Run `claude "Update Dashboard.md with current status"` to refresh task counts and activity
+- **Silver/Gold Tiers**: Dashboard updates automatically via scheduled checks or Ralph loop
 - Check `/Logs` folder for detailed system logs
 - Review strategic documents above for context
