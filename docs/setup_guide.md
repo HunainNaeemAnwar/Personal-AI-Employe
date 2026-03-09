@@ -76,18 +76,18 @@ Open `.env` in your text editor and configure:
 
 ```bash
 # Required: Vault path (will be created in Step 3)
-VAULT_PATH=/Users/yourname/AI_Employee_Vault
+VAULT_PATH=/absolute/path/to/personal-ai-employee/AI_Employee_Vault
 
 # Choose ONE watcher type
 WATCHER_TYPE=gmail  # or: filesystem
 
 # Gmail Watcher Configuration (if WATCHER_TYPE=gmail)
-GMAIL_CREDENTIALS_PATH=/Users/yourname/.credentials/gmail-credentials.json
-GMAIL_TOKEN_PATH=/Users/yourname/.credentials/gmail-token.json
+GMAIL_CREDENTIALS_PATH=/absolute/path/to/.credentials/gmail-credentials.json
+GMAIL_TOKEN_PATH=/absolute/path/to/.credentials/gmail-token.json
 GMAIL_QUERY=is:unread is:important
 
 # File System Watcher Configuration (if WATCHER_TYPE=filesystem)
-WATCH_DIRECTORY=/Users/yourname/AI_Employee_Dropbox
+WATCH_DIRECTORY=/absolute/path/to/personal-ai-employee/AI_Employee_Dropbox
 FILE_EXTENSIONS=*  # Or: .pdf,.docx,.xlsx
 ```
 
@@ -105,7 +105,7 @@ python -m vault_setup.create_vault --path ~/AI_Employee_Vault
 ```
 ✅ Vault Created Successfully!
 
-📁 Vault Location: /Users/yourname/AI_Employee_Vault
+📁 Vault Location: /absolute/path/to/personal-ai-employee/AI_Employee_Vault
 
 📂 Created 8 folders:
    • Approved/
@@ -126,7 +126,7 @@ python -m vault_setup.create_vault --path ~/AI_Employee_Vault
 
 1. Launch Obsidian
 2. Click "Open folder as vault"
-3. Navigate to `/Users/yourname/AI_Employee_Vault`
+3. Navigate to `personal-ai-employee/AI_Employee_Vault`
 4. Click "Open"
 
 ### 3.3 Verify Vault Structure
@@ -164,7 +164,7 @@ First run will open browser for OAuth consent. Grant permissions.
 ```
 🧪 Running Gmail Watcher in test mode...
 📧 Query: is:unread is:important
-📁 Vault: /Users/yourname/AI_Employee_Vault
+📁 Vault: /absolute/path/to/personal-ai-employee/AI_Employee_Vault
 
 ✅ Test complete: Found 0 new emails
 ```
@@ -186,9 +186,9 @@ python main.py --test
 **Expected output**:
 ```
 🧪 Running File System Watcher in test mode...
-📂 Watching: /Users/yourname/AI_Employee_Dropbox
+📂 Watching: /absolute/path/to/personal-ai-employee/AI_Employee_Dropbox
 📄 Extensions: *
-📁 Vault: /Users/yourname/AI_Employee_Vault
+📁 Vault: /absolute/path/to/personal-ai-employee/AI_Employee_Vault
 
 Monitoring for 10 seconds...
 ✅ Test complete: Processed 0 files
@@ -240,7 +240,7 @@ python main.py
 🤖 Personal AI Employee - Watcher
 ======================================================================
 
-📍 Vault: /Users/yourname/AI_Employee_Vault
+📍 Vault: /absolute/path/to/personal-ai-employee/AI_Employee_Vault
 🔧 Watcher Type: gmail
 🔄 Mode: Continuous monitoring
 

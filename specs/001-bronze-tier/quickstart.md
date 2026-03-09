@@ -42,11 +42,11 @@ python -c "import watchdog; print('Dependencies installed successfully')"
 ### Option A: Automated Setup (Recommended)
 
 ```bash
-python vault_setup/create_vault.py --path ~/AI_Employee_Vault
+python -m vault_setup.create_vault --path ./AI_Employee_Vault
 ```
 
 This creates:
-- Vault at `~/AI_Employee_Vault`
+- Vault at `./AI_Employee_Vault` (inside project directory)
 - All required folders (Inbox, Needs_Action, Done, Logs, Plans, etc.)
 - Dashboard.md and Company_Handbook.md templates
 
@@ -136,9 +136,9 @@ You must choose **ONE** watcher for Bronze tier:
 Create `.env` file in project root:
 ```bash
 # Gmail Watcher Configuration
-VAULT_PATH=/Users/yourname/AI_Employee_Vault
-GMAIL_CREDENTIALS_PATH=/Users/yourname/.credentials/gmail-credentials.json
-GMAIL_TOKEN_PATH=/Users/yourname/.credentials/gmail-token.json
+VAULT_PATH=/absolute/path/to/personal-ai-employee/AI_Employee_Vault
+GMAIL_CREDENTIALS_PATH=/absolute/path/to/.credentials/gmail-credentials.json
+GMAIL_TOKEN_PATH=/absolute/path/to/.credentials/gmail-token.json
 GMAIL_QUERY=is:unread is:important
 WATCHER_TYPE=gmail
 ```
@@ -174,8 +174,8 @@ mkdir -p ~/AI_Employee_Dropbox
 Create `.env` file in project root:
 ```bash
 # File System Watcher Configuration
-VAULT_PATH=/Users/yourname/AI_Employee_Vault
-WATCH_DIRECTORY=/Users/yourname/AI_Employee_Dropbox
+VAULT_PATH=/absolute/path/to/personal-ai-employee/AI_Employee_Vault
+WATCH_DIRECTORY=/absolute/path/to/personal-ai-employee/AI_Employee_Dropbox
 FILE_EXTENSIONS=*  # Or: .pdf,.docx,.xlsx
 WATCHER_TYPE=filesystem
 ```
@@ -189,7 +189,7 @@ python watchers/filesystem_watcher.py --test
 **Expected output**:
 ```
 [INFO] Starting FilesystemWatcher
-[INFO] Monitoring directory: /Users/yourname/AI_Employee_Dropbox
+[INFO] Monitoring directory: /absolute/path/to/personal-ai-employee/AI_Employee_Dropbox
 [INFO] Watching for file extensions: *
 [INFO] Test complete
 ```

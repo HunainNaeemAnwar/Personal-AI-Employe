@@ -160,8 +160,8 @@ ls -la ~/.credentials/gmail-credentials.json
 Edit your `.env` file:
 
 ```bash
-GMAIL_CREDENTIALS_PATH=/Users/yourname/.credentials/gmail-credentials.json
-GMAIL_TOKEN_PATH=/Users/yourname/.credentials/gmail-token.json
+GMAIL_CREDENTIALS_PATH=/absolute/path/to/.credentials/gmail-credentials.json
+GMAIL_TOKEN_PATH=/absolute/path/to/.credentials/gmail-token.json
 GMAIL_QUERY=is:unread is:important
 WATCHER_TYPE=gmail
 ```

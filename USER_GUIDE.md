@@ -46,7 +46,7 @@ Before starting, ensure you have:
 - [ ] 1GB free disk space
 - [ ] A Gmail account (for Gmail Watcher)
 
-**Note**: This guide uses macOS/Linux path examples (`/Users/yourname/`). Windows users should use `C:\Users\yourname\` instead.
+**Note**: The vault is created inside the project directory (`./AI_Employee_Vault`). Use absolute paths in `.env` configuration.
 
 ### 3-Command Setup
 
@@ -243,14 +243,14 @@ nano .env
 
 **Required settings**:
 ```bash
-VAULT_PATH=/Users/yourname/AI_Employee_Vault
-GMAIL_CREDENTIALS_PATH=/Users/yourname/.credentials/gmail-credentials.json
-GMAIL_TOKEN_PATH=/Users/yourname/.credentials/gmail-token.json
+VAULT_PATH=/absolute/path/to/personal-ai-employee/AI_Employee_Vault
+GMAIL_CREDENTIALS_PATH=/absolute/path/to/.credentials/gmail-credentials.json
+GMAIL_TOKEN_PATH=/absolute/path/to/.credentials/gmail-token.json
 GMAIL_QUERY=is:unread is:important
 WATCHER_TYPE=gmail
 ```
 
-**Important**: Replace `/Users/yourname/` with your actual home directory path.
+**Important**: Replace `/absolute/path/to/` with your actual paths.
 
 **3A.4: First Authentication**
 
@@ -286,8 +286,8 @@ mkdir -p ~/AI_Employee_Dropbox
 Create `.env` file:
 
 ```bash
-VAULT_PATH=/Users/yourname/AI_Employee_Vault
-WATCH_DIRECTORY=/Users/yourname/AI_Employee_Dropbox
+VAULT_PATH=/absolute/path/to/personal-ai-employee/AI_Employee_Vault
+WATCH_DIRECTORY=/absolute/path/to/personal-ai-employee/AI_Employee_Dropbox
 FILE_EXTENSIONS=*
 WATCHER_TYPE=filesystem
 ```
@@ -301,7 +301,7 @@ python main.py --test
 **Expected output**:
 ```
 [INFO] Starting FilesystemWatcher
-[INFO] Monitoring directory: /Users/yourname/AI_Employee_Dropbox
+[INFO] Monitoring directory: /absolute/path/to/personal-ai-employee/AI_Employee_Dropbox
 ✅ Test complete: Processed 0 files
 ```
 
