@@ -1,69 +1,50 @@
 # AI Employee Dashboard
 
-**Last Updated**: 2026-03-09
+**Last Updated**: *Auto-updated by Claude*
 
----
+## Recent Activity
+
+*No activity yet - start your first Watcher to begin tracking*
+
+## Pending Tasks
+
+Check the `/Needs_Action` folder for tasks requiring attention.
+
+**Quick Actions**:
+- Review tasks in `/Needs_Action`
+- Check plans in `/Plans`
+- Review items awaiting approval in `/Pending_Approval`
 
 ## System Status
 
 | Component | Status | Last Check |
 |-----------|--------|------------|
-| Gmail Watcher | ⏸️ Not Running | Never |
-| File System Watcher | ⏸️ Not Running | Never |
-| Claude Integration | ✅ Ready | - |
+| Watcher | Not running | Never |
+| Claude Code | Ready | - |
+| Vault | Initialized | Today |
 
----
+## Task Summary
 
-## Task Overview
+| Folder | Count |
+|--------|-------|
+| Needs_Action | 0 |
+| Plans | 0 |
+| Done | 0 |
+| Pending_Approval | 0 |
 
-| Folder | Count | Description |
-|--------|-------|-------------|
-| 📥 Needs_Action | 1 | Tasks waiting to be processed |
-| 📋 Plans | 0 | Execution plans created by Claude |
-| ⏳ Pending_Approval | 0 | Tasks requiring your approval |
-| ✅ Approved | 0 | Approved tasks ready for execution |
-| ❌ Rejected | 0 | Declined tasks |
-| ✔️ Done | 0 | Completed tasks |
+## Quick Links
 
----
-
-## Recent Activity
-
-### Today (2026-03-09)
-- 🆕 Email task created: "Re: For Project Proposal Plan"
-- 📊 System initialized
-
-### This Week
-- No activity yet
-
----
-
-## Quick Actions
-
-```bash
-# Start Gmail Watcher
-python main.py
-
-# Process tasks with Claude
-cd AI_Employee_Vault
-claude "Process all tasks in /Needs_Action"
-
-# Update this dashboard
-claude "Update Dashboard.md with current status"
-```
-
----
-
-## Strategic Documents
-
-- 📋 **[Company_Handbook.md](Company_Handbook.md)** - Rules, policies, and workflows
-- 🎯 **[business_goals.md](business_goals.md)** - Strategic vision and roadmap
-
----
+- [[Company_Handbook]] - Rules and policies
+- [[Needs_Action/]] - Tasks requiring action
+- [[Plans/]] - Execution plans
+- [[Logs/]] - System logs
 
 ## Notes
 
-- **Bronze Tier**: This dashboard requires manual updates. Run `claude "Update Dashboard.md with current status"` to refresh task counts and activity
-- **Silver/Gold Tiers**: Dashboard updates automatically via scheduled checks or Ralph loop
-- Check `/Logs` folder for detailed system logs
-- Review strategic documents above for context
+This dashboard provides a real-time view of your AI Employee's activity. As tasks are detected and processed, this page will automatically update with the latest information.
+
+To get started:
+1. Start your Watcher script (Gmail or File System)
+2. Trigger a test event (send email or drop file)
+3. Run Claude Code to process tasks
+4. Return here to see the results
