@@ -54,8 +54,15 @@ claude "Update Dashboard.md with current status"
 
 ---
 
+## Strategic Documents
+
+- 📋 **[Company_Handbook.md](Company_Handbook.md)** - Rules, policies, and workflows
+- 🎯 **[business_goals.md](business_goals.md)** - Strategic vision and roadmap
+
+---
+
 ## Notes
 
 - This dashboard is automatically updated by Claude Code
 - Check `/Logs` folder for detailed system logs
-- Review `Company_Handbook.md` for rules and policies
+- Review strategic documents above for context

@@ -5,6 +5,13 @@
 
 ---
 
+## Related Documents
+
+- 🎯 **[business_goals.md](business_goals.md)** - Strategic vision, target users, revenue model, and roadmap
+- 📊 **[Dashboard.md](Dashboard.md)** - System status and task overview
+
+---
+
 ## Rules of Engagement
 
 ### Communication Standards
