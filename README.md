@@ -229,4 +229,6 @@ After Bronze tier is working, Silver tier adds:
 
 ## License
 
-[Add your license here]
+MIT License - see [LICENSE](LICENSE) file for details.
+
+Open source and free to use, modify, and distribute.
