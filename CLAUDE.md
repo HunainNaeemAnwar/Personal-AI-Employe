@@ -250,6 +250,7 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 ## Active Technologies
 - Python 3.13+ (001-bronze-tier)
 - Local file system (Obsidian vault as markdown files with YAML frontmatter) (001-bronze-tier)
+- Python 3.13+ (consistent with Bronze tier foundation) (002-silver-tier)
 
 ## Recent Changes
 - 001-bronze-tier: Added Python 3.13+

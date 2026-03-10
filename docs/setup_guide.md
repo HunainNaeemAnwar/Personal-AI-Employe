@@ -1,16 +1,22 @@
-# Setup Guide: Personal AI Employee - Bronze Tier
+# Setup Guide: Personal AI Employee - Silver Tier
 
-**Estimated Time**: 1-2 hours
-**Difficulty**: Intermediate
+**Estimated Time**: 3-4 hours
+**Difficulty**: Intermediate to Advanced
 
 ## Overview
 
-This guide walks you through setting up the complete Bronze tier Personal AI Employee system from scratch. By the end, you'll have:
+This guide walks you through setting up the complete Silver tier Personal AI Employee system from scratch. By the end, you'll have:
 
 - ✅ Obsidian vault with structured folders
-- ✅ One Watcher (Gmail OR File System) monitoring for tasks
+- ✅ Dual watchers (Gmail AND File System) with orchestrator
+- ✅ LinkedIn integration for messages and posts
+- ✅ Email sending via MCP server
+- ✅ State persistence with SQLite database
+- ✅ Human-in-the-loop approval workflow
+- ✅ Structured planning loop with Plan.md files
+- ✅ Scheduled task execution (cron/Task Scheduler)
 - ✅ Claude Code integration for task processing
-- ✅ Email triage Agent Skill
+- ✅ Four Agent Skills (email-triage, linkedin-posting, approval-workflow, task-planning)
 
 ## Prerequisites Checklist
 
@@ -18,18 +24,24 @@ Before starting, ensure you have:
 
 - [ ] **Obsidian** v1.10.6+ installed ([download](https://obsidian.md/download))
 - [ ] **Python** 3.13+ installed ([download](https://www.python.org/downloads/))
+- [ ] **Node.js** v24+ installed ([download](https://nodejs.org/))
 - [ ] **Claude Code** CLI installed ([setup guide](https://code.claude.com))
 - [ ] **uv** package manager: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - [ ] Basic command-line familiarity
-- [ ] 1GB free disk space
+- [ ] 2GB free disk space
 - [ ] Stable internet connection
 
-**For Gmail Watcher (optional)**:
+**For Gmail Watcher and Email Sending**:
 - [ ] Google account with Gmail
-- [ ] Google Cloud project access
+- [ ] Google Cloud project with Gmail API enabled
+- [ ] OAuth2 credentials downloaded
 
-**For File System Watcher (optional)**:
-- [ ] Designated drop folder location
+**For LinkedIn Integration**:
+- [ ] LinkedIn account
+- [ ] LinkedIn username and password
+
+**For Scheduled Tasks**:
+- [ ] Cron access (Linux/Mac) or Task Scheduler access (Windows)
 
 ## Step 1: Clone and Setup Repository
 
@@ -38,7 +50,7 @@ Before starting, ensure you have:
 ```bash
 git clone https://github.com/your-username/personal-ai-employee.git
 cd personal-ai-employee
-git checkout 001-bronze-tier
+git checkout 002-silver-tier
 ```
 
 ### 1.2 Install Python Dependencies
@@ -50,17 +62,27 @@ uv venv
 # Activate virtual environment
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install dependencies
-uv pip install -e .
+# Install Python dependencies (use binary wheels for lxml)
+uv pip install -e . --only-binary lxml
 ```
 
-### 1.3 Verify Installation
+### 1.3 Install Node.js Dependencies (MCP Email Server)
 
 ```bash
-python -c "import google.auth; import watchdog; import yaml; print('✓ Dependencies installed')"
+cd mcp_servers/email_sender
+npm install
+npm run build
+cd ../..
 ```
 
-**Expected output**: `✓ Dependencies installed`
+### 1.4 Verify Installation
+
+```bash
+python -c "import google.auth; import watchdog; import yaml; import linkedin_api; print('✓ Python dependencies installed')"
+node --version  # Should be v24+
+```
+
+**Expected output**: `✓ Python dependencies installed` and Node.js version v24+
 
 ## Step 2: Configure Environment
 
@@ -78,17 +100,37 @@ Open `.env` in your text editor and configure:
 # Required: Vault path (will be created in Step 3)
 VAULT_PATH=/absolute/path/to/personal-ai-employee/AI_Employee_Vault
 
-# Choose ONE watcher type
-WATCHER_TYPE=gmail  # or: filesystem
+# Orchestrator Configuration
+WATCHER_TYPE=orchestrator
+ORCHESTRATOR_WATCHERS=gmail,filesystem,linkedin
+ORCHESTRATOR_HEALTH_CHECK_INTERVAL=60
+ORCHESTRATOR_RESTART_DELAY=5
 
-# Gmail Watcher Configuration (if WATCHER_TYPE=gmail)
+# Gmail Watcher Configuration
 GMAIL_CREDENTIALS_PATH=/absolute/path/to/.credentials/gmail-credentials.json
 GMAIL_TOKEN_PATH=/absolute/path/to/.credentials/gmail-token.json
 GMAIL_QUERY=is:unread is:important
+GMAIL_POLLING_INTERVAL=60
 
-# File System Watcher Configuration (if WATCHER_TYPE=filesystem)
+# File System Watcher Configuration
 WATCH_DIRECTORY=/absolute/path/to/personal-ai-employee/AI_Employee_Dropbox
-FILE_EXTENSIONS=*  # Or: .pdf,.docx,.xlsx
+FILE_EXTENSIONS=*
+FILESYSTEM_POLLING_INTERVAL=30
+
+# LinkedIn Configuration
+LINKEDIN_USERNAME=your_linkedin_email@example.com
+LINKEDIN_PASSWORD=your_linkedin_password
+LINKEDIN_POLLING_INTERVAL=300
+LINKEDIN_RATE_LIMIT_REQUESTS=100
+LINKEDIN_RATE_LIMIT_WINDOW=3600
+
+# State Management
+STATE_DB_PATH=state.db
+STATE_BACKUP_INTERVAL=86400
+
+# Approval Workflow
+APPROVAL_REMINDER_INTERVAL=86400
+APPROVAL_LOG_PATH=AI_Employee_Vault/Logs/approvals.log
 ```
 
 **Important**: Use absolute paths, not relative paths.

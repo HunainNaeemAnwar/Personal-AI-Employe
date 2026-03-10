@@ -9,7 +9,7 @@ import os
 import pickle
 import re
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -42,6 +42,7 @@ class GmailWatcher(BaseWatcher):
         token_path: str,
         gmail_query: str = "is:unread is:important",
         check_interval: int = 120,
+        state_db_path: str = "state.db",
     ):
         """Initialize Gmail Watcher.
 
@@ -51,11 +52,12 @@ class GmailWatcher(BaseWatcher):
             token_path: Path to store/load token
             gmail_query: Gmail search query (default: "is:unread is:important")
             check_interval: Seconds between checks (default: 120)
+            state_db_path: Path to SQLite state database (default: state.db)
 
         Raises:
             ValueError: If credentials file doesn't exist
         """
-        super().__init__(vault_path, check_interval)
+        super().__init__(vault_path, check_interval, state_db_path)
 
         self.credentials_path = credentials_path
         self.token_path = token_path
@@ -165,9 +167,11 @@ class GmailWatcher(BaseWatcher):
                         .execute()
                     )
 
-                    # Create task file and mark as processed
-                    self.create_action_file(msg)
-                    self.mark_processed(message_id)
+                    # Create task file and mark as processed with file path
+                    task_file = self.create_action_file(msg)
+                    # Store relative path from vault root for state tracking
+                    relative_path = task_file.relative_to(self.vault_path)
+                    self.mark_processed(message_id, str(relative_path))
                     new_count += 1
 
                 return new_count
@@ -286,9 +290,9 @@ class GmailWatcher(BaseWatcher):
             # Parse date
             try:
                 # Gmail date format is complex, use current time as fallback
-                timestamp = datetime.utcnow().isoformat() + "Z"
+                timestamp = datetime.now(timezone.utc).isoformat() + "Z"
             except:
-                timestamp = datetime.utcnow().isoformat() + "Z"
+                timestamp = datetime.now(timezone.utc).isoformat() + "Z"
 
             # Decode body
             body = self._decode_body(message_data["payload"])
@@ -298,7 +302,7 @@ class GmailWatcher(BaseWatcher):
 
             # Create filename
             slug = self._slugify(subject)
-            filename = f"EMAIL_{datetime.utcnow().strftime('%Y%m%dT%H%M%S')}Z_{slug}.md"
+            filename = f"EMAIL_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S')}Z_{slug}.md"
 
             # Create task file content
             content = f"""---
@@ -362,3 +366,27 @@ subject: {subject}
                 error_message=str(e),
             )
             raise
+
+
+if __name__ == "__main__":
+    import argparse
+    import os
+
+    parser = argparse.ArgumentParser(description="Gmail Watcher")
+    parser.add_argument("--vault", default=os.getenv("VAULT_PATH", "vault"), help="Path to Obsidian vault")
+    parser.add_argument("--credentials", default=os.getenv("GMAIL_CREDENTIALS_PATH", "credentials.json"), help="Path to Gmail credentials")
+    parser.add_argument("--token", default=os.getenv("GMAIL_TOKEN_PATH", "token.pickle"), help="Path to Gmail token")
+    parser.add_argument("--interval", type=int, default=int(os.getenv("GMAIL_CHECK_INTERVAL", "60")), help="Check interval in seconds")
+    parser.add_argument("--state-db", default=os.getenv("STATE_DB_PATH", "state.db"), help="Path to state database")
+
+    args = parser.parse_args()
+
+    watcher = GmailWatcher(
+        vault_path=Path(args.vault),
+        credentials_path=args.credentials,
+        token_path=args.token,
+        check_interval=args.interval,
+        state_db_path=args.state_db
+    )
+
+    watcher.run()

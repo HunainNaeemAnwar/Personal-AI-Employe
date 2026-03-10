@@ -1,0 +1,102 @@
+# Scheduled Tasks Configuration for AI Employee
+#
+# This file defines automated tasks that run on a schedule.
+# Tasks are executed by the scheduler module using cron (Linux/Mac) or Task Scheduler (Windows).
+#
+# Schedule Format (Cron Expression):
+# - Minute (0-59)
+# - Hour (0-23)
+# - Day of month (1-31)
+# - Month (1-12)
+# - Day of week (0-7, where 0 and 7 are Sunday)
+#
+# Examples:
+# - "0 8 * * *"     - Every day at 8:00 AM
+# - "0 */2 * * *"   - Every 2 hours
+# - "0 9 * * 1"     - Every Monday at 9:00 AM
+# - "0 0 1 * *"     - First day of every month at midnight
+# - "*/15 * * * *"  - Every 15 minutes
+
+scheduled_tasks:
+  # Daily morning briefing - Generate summary of overnight activity
+  - id: "morning_briefing"
+    description: "Generate daily morning briefing with overnight activity summary"
+    schedule: "0 8 * * *"  # Every day at 8:00 AM
+    command: "python -m scheduler.task_executor --task morning_briefing"
+    enabled: true
+    retry_on_failure: true
+    max_retries: 3
+
+  # Weekly LinkedIn post - Share business update or insight
+  - id: "weekly_linkedin_post"
+    description: "Post weekly business update to LinkedIn"
+    schedule: "0 9 * * 1"  # Every Monday at 9:00 AM
+    command: "python -m scheduler.task_executor --task weekly_linkedin_post"
+    enabled: true
+    retry_on_failure: true
+    max_retries: 3
+
+  # Daily email summary - Summarize important emails from the day
+  - id: "daily_email_summary"
+    description: "Generate end-of-day email summary"
+    schedule: "0 18 * * *"  # Every day at 6:00 PM
+    command: "python -m scheduler.task_executor --task daily_email_summary"
+    enabled: true
+    retry_on_failure: true
+    max_retries: 2
+
+  # Weekly task review - Review completed and pending tasks
+  - id: "weekly_task_review"
+    description: "Generate weekly task completion report"
+    schedule: "0 17 * * 5"  # Every Friday at 5:00 PM
+    command: "python -m scheduler.task_executor --task weekly_task_review"
+    enabled: true
+    retry_on_failure: true
+    max_retries: 2
+
+  # Database backup - Backup state database
+  - id: "database_backup"
+    description: "Backup state database to prevent data loss"
+    schedule: "0 2 * * *"  # Every day at 2:00 AM
+    command: "python -m scheduler.task_executor --task database_backup"
+    enabled: true
+    retry_on_failure: true
+    max_retries: 3
+
+  # Health check - Verify all systems are operational
+  - id: "system_health_check"
+    description: "Check health of watchers, database, and MCP servers"
+    schedule: "0 */6 * * *"  # Every 6 hours
+    command: "python -m scheduler.task_executor --task system_health_check"
+    enabled: true
+    retry_on_failure: false
+    max_retries: 1
+
+  # Monthly report - Generate comprehensive monthly activity report
+  - id: "monthly_report"
+    description: "Generate monthly activity and performance report"
+    schedule: "0 9 1 * *"  # First day of every month at 9:00 AM
+    command: "python -m scheduler.task_executor --task monthly_report"
+    enabled: true
+    retry_on_failure: true
+    max_retries: 2
+
+# Task execution settings
+execution_settings:
+  # Prevent overlapping task execution
+  prevent_overlap: true
+
+  # Lock file directory for overlap prevention
+  lock_dir: "/tmp/ai_employee_locks"
+
+  # Maximum execution time per task (seconds)
+  max_execution_time: 3600  # 1 hour
+
+  # Log directory for scheduled task execution
+  log_dir: "AI_Employee_Vault/Logs"
+
+  # Retry delay (seconds) between failed attempts
+  retry_delay: 300  # 5 minutes
+
+  # Enable detailed logging
+  verbose_logging: true

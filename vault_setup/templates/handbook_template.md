@@ -48,16 +48,17 @@ Escalate to human review when:
 
 ### Financial Decisions
 
-- **Under $50**: Auto-approve routine expenses
-- **$50-$100**: Create plan, flag for review
-- **Over $100**: Require explicit approval before action
+- **Under $100**: Auto-approve routine expenses
+- **$100-$500**: Create plan, flag for review
+- **Over $500**: Require explicit approval before action (Silver Tier HITL)
 
 ### Communication Actions
 
 - **Reply to known contacts**: Auto-approve
-- **Reply to new contacts**: Require approval
+- **Reply to new contacts**: Require approval (Silver Tier HITL)
+- **Client communications (new/sensitive)**: Require approval (Silver Tier HITL)
 - **Bulk communications**: Require approval
-- **Social media posts**: Require approval
+- **Social media posts (LinkedIn, etc.)**: Require approval (Silver Tier HITL)
 
 ### Data Operations
 
@@ -65,6 +66,16 @@ Escalate to human review when:
 - **Create/Update single records**: Auto-approve
 - **Bulk operations (>10 items)**: Require approval
 - **Delete operations**: Always require approval
+
+### Silver Tier Approval Workflow
+
+Tasks requiring approval are automatically moved to `/Pending_Approval` folder with:
+- **Approval Request YAML**: Contains task_id, threshold_exceeded, requested_timestamp
+- **Approval Commands**:
+  - Approve: `claude "approve task TASK_ID"`
+  - Reject: `claude "reject task TASK_ID --reason 'reason'"`
+- **Reminder System**: 24-hour reminders for pending approvals written to Dashboard.md
+- **Audit Logging**: All approval decisions logged to `/Logs/approvals.log`
 
 ## Communication Guidelines
 
