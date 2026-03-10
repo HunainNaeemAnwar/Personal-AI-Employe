@@ -295,7 +295,9 @@ class BaseWatcher(ABC):
 
         try:
             with open(heartbeat_file, "w") as f:
-                f.write(datetime.now(timezone.utc).isoformat() + "Z")
+                # Write ISO format timestamp with timezone (+00:00)
+                # Don't add "Z" suffix as isoformat() already includes timezone
+                f.write(datetime.now(timezone.utc).isoformat())
 
             self.logger.debug(f"Heartbeat written to {heartbeat_file}")
 

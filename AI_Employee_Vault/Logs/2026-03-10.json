@@ -31,5 +31,26 @@
     "details": {
       "items_found": 2
     }
+  },
+  {
+    "timestamp": "2026-03-10T04:38:57.052924+00:00Z",
+    "watcher_type": "filesystem",
+    "action": "create_task",
+    "result": "success",
+    "details": {
+      "filename": "FILE_DROP_20260310T043857Z_test_1773117531.md",
+      "original_file": "test_1773117531.txt",
+      "file_size": 25,
+      "priority": "low"
+    }
+  },
+  {
+    "timestamp": "2026-03-10T04:38:57.059043+00:00Z",
+    "watcher_type": "filesystem",
+    "action": "check",
+    "result": "success",
+    "details": {
+      "items_found": 1
+    }
   }
 ]
