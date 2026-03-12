@@ -72,3 +72,4 @@ AI_Employee_Dropbox/*.xlsx
 # MCP server build artifacts
 mcp_servers/email_sender/__pycache__/
 mcp_servers/email_sender/*.pyc
+QWEN.md
