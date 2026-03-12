@@ -75,3 +75,6 @@ mcp_servers/email_sender/*.pyc
 
 # Node.js
 node_modules/
+
+# Qwen agent config
+QWEN.md
