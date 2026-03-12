@@ -371,8 +371,10 @@ class LinkedInWatcher(BaseWatcher):
                     if not name:
                         self.logger.debug(f"Could not find sender name in conversation")
                         continue
-                    
-                    conversation_id = f"li_msg_{hash(name)}"
+
+                    # Use stable hash (hashlib) instead of hash() which changes between runs
+                    import hashlib
+                    conversation_id = f"li_msg_{hashlib.md5(name.encode()).hexdigest()[:16]}"
 
                     # Skip if already processed
                     if self.is_processed(conversation_id):
