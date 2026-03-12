@@ -12,7 +12,6 @@ wheels/
 # Environment variables and credentials
 .env
 .credentials/
-*.log
 
 # IDE
 .vscode/
@@ -21,6 +20,7 @@ wheels/
 *.swo
 .qwen
 QWEN.md
+
 # OS
 .DS_Store
 Thumbs.db
@@ -30,3 +30,46 @@ uv.lock
 
 # Obsidian
 .obsidian/
+
+# ========================================
+# AI Employee Vault - Runtime Files
+# ========================================
+
+# Logs and heartbeats (runtime-generated)
+AI_Employee_Vault/Logs/*.json
+AI_Employee_Vault/Logs/*.log
+AI_Employee_Vault/Logs/*_heartbeat.txt
+AI_Employee_Vault/Logs/benchmark_results.json
+
+# User profile (personal data)
+AI_Employee_Vault/user_profile.md
+
+# Database (runtime state)
+AI_Employee_Vault/state.db
+AI_Employee_Vault/state.db-journal
+*.db-journal
+
+# Browser sessions
+AI_Employee_Vault/.linkedin_session/
+
+# Task files (created during runtime)
+AI_Employee_Vault/Needs_Action/*.md
+AI_Employee_Vault/Done/*.md
+AI_Employee_Vault/Pending_Approval/*.md
+AI_Employee_Vault/Rejected/*.md
+AI_Employee_Vault/Approved/*.md
+AI_Employee_Vault/Plans/*.md
+AI_Employee_Vault/Summaries/*.md
+AI_Employee_Vault/Briefings/*.md
+AI_Employee_Vault/Reviews/*.md
+AI_Employee_Vault/Reports/*.md
+
+# Dropbox watch folder (test files)
+AI_Employee_Dropbox/*.txt
+AI_Employee_Dropbox/*.pdf
+AI_Employee_Dropbox/*.docx
+AI_Employee_Dropbox/*.xlsx
+
+# MCP server build artifacts
+mcp_servers/email_sender/__pycache__/
+mcp_servers/email_sender/*.pyc
