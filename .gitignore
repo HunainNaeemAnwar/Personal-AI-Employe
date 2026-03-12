@@ -73,3 +73,6 @@ AI_Employee_Dropbox/*.xlsx
 mcp_servers/email_sender/__pycache__/
 mcp_servers/email_sender/*.pyc
 QWEN.md
+
+# Node.js
+node_modules/
