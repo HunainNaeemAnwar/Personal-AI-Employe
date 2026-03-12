@@ -19,7 +19,6 @@ wheels/
 *.swp
 *.swo
 .qwen
-QWEN.md
 
 # OS
 .DS_Store
