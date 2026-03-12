@@ -97,27 +97,38 @@ Read message → Draft response → Execute (send) → Move to Done
 
 ## Execution Commands
 
-### For LinkedIn Messages:
+### For LinkedIn Messages (Using Playwright MCP):
+
+**Option 1: Manual Send with Playwright**
 ```bash
-# 1. Draft response (in task file)
-# 2. Send via LinkedIn MCP Server
-claude "Send LinkedIn message using MCP server"
+# 1. Navigate to LinkedIn
+"Navigate to https://www.linkedin.com/messaging"
 
-# MCP will:
-# - Login to LinkedIn (if not already)
-# - Find the recipient
-# - Send the drafted message
-# - Log to /Logs/linkedin_sent.log
+# 2. Find and click conversation
+"Click on conversation with [Recipient Name]"
 
-# 3. After sending confirmed, move to Done
-mv AI_Employee_Vault/Needs_Action/linkedin/LINKEDIN_MSG_*.md AI_Employee_Vault/Done/linkedin/
+# 3. Type and send message
+"Type this message: [draft content]"
+"Press Enter to send"
+
+# 4. Verify sent
+"Take screenshot to confirm message sent"
+
+# 5. Move to Done
+mv AI_Employee_Vault/Needs_Action/linkedin/*.md AI_Employee_Vault/Done/linkedin/
 ```
 
-**Example MCP Command:**
+**Option 2: Use LinkedIn MCP Server (If Working)**
 ```bash
-claude "Use linkedin-sender MCP to send this message:
-Recipient: Hunain Naeem Anwar
-Message: Hi! Thanks for reaching out. How can I help you today?"
+# Test connection first
+"Test LinkedIn connection"
+
+# If connected, send message
+"Send LinkedIn message using linkedin-sender MCP:
+Recipient: [Name]
+Message: [Content]"
+
+# After success, move to Done
 ```
 
 ### For Email Replies:
