@@ -333,14 +333,13 @@ New file detected in monitored directory. Review and process as needed.
 [Add any additional context or notes here]
 """
 
-            # Write to Needs_Action folder
-            needs_action_dir = self.vault_path / "Needs_Action"
-            needs_action_dir.mkdir(exist_ok=True)
-
-            task_file = needs_action_dir / task_filename
+            # Write to Inbox/filesystem folder (NOT Needs_Action)
+            inbox_dir = self.get_inbox_subfolder()
+            
+            task_file = inbox_dir / task_filename
             task_file.write_text(content)
 
-            self.logger.info(f"Created task file: {task_filename}")
+            self.logger.info(f"Created task file in Inbox: {task_filename}")
             self.log_to_vault(
                 action="create_task",
                 result="success",
@@ -349,6 +348,7 @@ New file detected in monitored directory. Review and process as needed.
                     "original_file": filename,
                     "file_size": file_size,
                     "priority": priority,
+                    "location": "Inbox/filesystem",
                 },
             )
 
@@ -395,6 +395,10 @@ New file detected in monitored directory. Review and process as needed.
 if __name__ == "__main__":
     import argparse
     import os
+    from dotenv import load_dotenv
+
+    # Load environment variables from .env file (override=True to refresh cache)
+    load_dotenv(override=True)
 
     parser = argparse.ArgumentParser(description="File System Watcher")
     parser.add_argument("--vault", default=os.getenv("VAULT_PATH", "vault"), help="Path to Obsidian vault")

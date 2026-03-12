@@ -133,6 +133,7 @@ class GmailWatcher(BaseWatcher):
         Raises:
             Exception: If Gmail API call fails after retries
         """
+        self.logger.debug("Checking Gmail for new messages...")
         max_retries = 3
         attempt = 0
 
@@ -140,6 +141,7 @@ class GmailWatcher(BaseWatcher):
             try:
                 # Query Gmail API for messages matching the configured query
                 # maxResults=10 limits to 10 most recent emails per check
+                self.logger.debug(f"Executing Gmail API query: {self.gmail_query}")
                 results = (
                     self.service.users()
                     .messages()
@@ -148,14 +150,18 @@ class GmailWatcher(BaseWatcher):
                 )
 
                 messages = results.get("messages", [])
+                self.logger.debug(f"Found {len(messages)} messages from API")
                 new_count = 0
 
                 # Process each message
+                processed_count = 0
                 for message in messages:
                     message_id = message["id"]
 
                     # Skip if already processed (prevents duplicate task files)
                     if self.is_processed(message_id):
+                        self.logger.debug(f"Skipping already processed message: {message_id}")
+                        processed_count += 1
                         continue
 
                     # Get full message details (headers, body, etc.)
@@ -173,6 +179,13 @@ class GmailWatcher(BaseWatcher):
                     relative_path = task_file.relative_to(self.vault_path)
                     self.mark_processed(message_id, str(relative_path))
                     new_count += 1
+
+                if new_count > 0:
+                    self.logger.info(f"Created {new_count} new task file(s)")
+                elif processed_count > 0:
+                    self.logger.info(f"No new emails found ({processed_count} already processed)")
+                else:
+                    self.logger.info(f"No new emails found (API returned {len(messages)} messages)")
 
                 return new_count
 
@@ -271,7 +284,7 @@ class GmailWatcher(BaseWatcher):
         return "medium"
 
     def create_action_file(self, message_data: Dict[str, Any]) -> Path:
-        """Create a task file for an email in the vault's Needs_Action folder.
+        """Create a task file for an email in the vault's Inbox/gmail folder.
 
         Args:
             message_data: Gmail message data from API
@@ -300,9 +313,9 @@ class GmailWatcher(BaseWatcher):
             # Determine priority
             priority = self._determine_priority(subject, sender)
 
-            # Create filename
+            # Create filename using subject (slugified for filesystem safety)
             slug = self._slugify(subject)
-            filename = f"EMAIL_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S')}Z_{slug}.md"
+            filename = f"EMAIL_{slug}.md"
 
             # Create task file content
             content = f"""---
@@ -337,14 +350,13 @@ subject: {subject}
 - [ ] Move to /Done when finished
 """
 
-            # Write to Needs_Action folder
-            needs_action_dir = self.vault_path / "Needs_Action"
-            needs_action_dir.mkdir(exist_ok=True)
-
-            task_file = needs_action_dir / filename
+            # Write to Inbox/gmail folder (NOT Needs_Action)
+            inbox_dir = self.get_inbox_subfolder()
+            
+            task_file = inbox_dir / filename
             task_file.write_text(content)
 
-            self.logger.info(f"Created task file: {filename}")
+            self.logger.info(f"Created task file in Inbox: {filename}")
             self.log_to_vault(
                 action="create_task",
                 result="success",
@@ -353,6 +365,7 @@ subject: {subject}
                     "subject": subject,
                     "sender": sender,
                     "priority": priority,
+                    "location": "Inbox/gmail",
                 },
             )
 
@@ -371,11 +384,16 @@ subject: {subject}
 if __name__ == "__main__":
     import argparse
     import os
+    from dotenv import load_dotenv
+
+    # Load environment variables from .env file (override=True to refresh cache)
+    load_dotenv(override=True)
 
     parser = argparse.ArgumentParser(description="Gmail Watcher")
     parser.add_argument("--vault", default=os.getenv("VAULT_PATH", "vault"), help="Path to Obsidian vault")
     parser.add_argument("--credentials", default=os.getenv("GMAIL_CREDENTIALS_PATH", "credentials.json"), help="Path to Gmail credentials")
     parser.add_argument("--token", default=os.getenv("GMAIL_TOKEN_PATH", "token.pickle"), help="Path to Gmail token")
+    parser.add_argument("--query", default=os.getenv("GMAIL_QUERY", "is:unread"), help="Gmail search query")
     parser.add_argument("--interval", type=int, default=int(os.getenv("GMAIL_CHECK_INTERVAL", "60")), help="Check interval in seconds")
     parser.add_argument("--state-db", default=os.getenv("STATE_DB_PATH", "state.db"), help="Path to state database")
 
@@ -385,6 +403,7 @@ if __name__ == "__main__":
         vault_path=Path(args.vault),
         credentials_path=args.credentials,
         token_path=args.token,
+        gmail_query=args.query,
         check_interval=args.interval,
         state_db_path=args.state_db
     )

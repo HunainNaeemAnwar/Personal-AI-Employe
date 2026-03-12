@@ -322,6 +322,10 @@ class Orchestrator:
 
         # Main monitoring loop
         try:
+            # Wait for initial heartbeat files to be written (watchers need time to start)
+            self.logger.info(f"Waiting {self.health_check_interval}s for watchers to initialize...")
+            time.sleep(self.health_check_interval)
+
             while self.running:
                 # Check health of all watchers
                 for watcher in self.watchers.values():
@@ -390,8 +394,8 @@ def main():
     import os
     from dotenv import load_dotenv
 
-    # Load environment variables
-    load_dotenv()
+    # Load environment variables (override=True to refresh cached values)
+    load_dotenv(override=True)
 
     vault_path = Path(os.getenv("VAULT_PATH", "AI_Employee_Vault"))
 
@@ -415,6 +419,8 @@ def main():
             gmail_cmd.extend(["--credentials", os.getenv("GMAIL_CREDENTIALS_PATH")])
         if os.getenv("GMAIL_TOKEN_PATH"):
             gmail_cmd.extend(["--token", os.getenv("GMAIL_TOKEN_PATH")])
+        if os.getenv("GMAIL_QUERY"):
+            gmail_cmd.extend(["--query", os.getenv("GMAIL_QUERY")])
 
         watchers.append({
             "name": "gmail",
@@ -448,7 +454,7 @@ def main():
                     "--username", linkedin_username,
                     "--password", linkedin_password,
                     "--state-db", state_db_path,
-                    "--interval", os.getenv("LINKEDIN_CHECK_INTERVAL", "300")
+                    "--interval", os.getenv("LINKEDIN_POLLING_INTERVAL", "300")
                 ]
             })
         else:

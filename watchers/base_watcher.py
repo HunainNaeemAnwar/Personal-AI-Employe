@@ -267,7 +267,15 @@ class BaseWatcher(ABC):
                     last_heartbeat = current_time
 
                 # Wait before next check (prevents API rate limiting and excessive CPU usage)
-                time.sleep(self.check_interval)
+                # Sleep in small increments to allow heartbeat writes during long check intervals
+                sleep_end = time.time() + self.check_interval
+                while time.time() < sleep_end:
+                    time.sleep(min(10, sleep_end - time.time()))  # Sleep in 10-second increments
+                    
+                    # Check if it's time to write heartbeat during the sleep period
+                    if time.time() - last_heartbeat >= heartbeat_interval:
+                        self._write_heartbeat()
+                        last_heartbeat = time.time()
 
         except KeyboardInterrupt:
             # Graceful shutdown on Ctrl+C
@@ -303,3 +311,18 @@ class BaseWatcher(ABC):
 
         except Exception as e:
             self.logger.warning(f"Failed to write heartbeat: {e}")
+
+    def get_inbox_subfolder(self) -> Path:
+        """Get the inbox subfolder path for this watcher type.
+
+        Returns:
+            Path to the inbox subfolder (e.g., /Inbox/gmail/)
+        """
+        inbox_dir = self.vault_path / "Inbox"
+        inbox_dir.mkdir(exist_ok=True)
+
+        # Create source-specific subfolder (gmail, filesystem, linkedin)
+        source_dir = inbox_dir / self.source_type
+        source_dir.mkdir(exist_ok=True)
+
+        return source_dir

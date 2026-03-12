@@ -3,8 +3,11 @@ LinkedIn Watcher implementation for monitoring LinkedIn messages and posting upd
 
 This module implements a watcher that monitors LinkedIn for new messages and
 provides capability to post business updates for lead generation.
+
+Uses Selenium browser automation for reliable LinkedIn access.
 """
 
+import json
 import logging
 import os
 import time
@@ -12,11 +15,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from linkedin_api import Linkedin
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    TimeoutException,
+    NoSuchElementException,
+    ElementClickInterceptedException
+)
 from bs4 import BeautifulSoup
 
 from watchers.base_watcher import BaseWatcher
@@ -25,18 +35,16 @@ from watchers.base_watcher import BaseWatcher
 class LinkedInWatcher(BaseWatcher):
     """
     Watcher for monitoring LinkedIn messages and posting business updates.
+    
+    Uses Selenium browser automation to access LinkedIn since the official API
+    is limited for personal accounts.
 
     Attributes:
-        linkedin_client: LinkedIn API client instance
         username: LinkedIn username/email
         password: LinkedIn password
-        access_token: LinkedIn OAuth2 access token
-        polling_interval: Seconds between LinkedIn API checks
-        rate_limit_requests: Maximum requests per hour
-        rate_limit_window: Rate limit window in seconds
-        request_count: Current request count in window
-        window_start: Start time of current rate limit window
-        use_selenium_fallback: Whether to use Selenium when API unavailable
+        polling_interval: Seconds between LinkedIn checks
+        driver: Selenium WebDriver instance
+        session_path: Path to store Chrome session data
     """
 
     def __init__(
@@ -44,12 +52,10 @@ class LinkedInWatcher(BaseWatcher):
         vault_path: Path,
         username: str,
         password: str,
-        access_token: Optional[str] = None,
         polling_interval: int = 300,
-        rate_limit_requests: int = 100,
-        rate_limit_window: int = 3600,
         check_interval: int = 300,
         state_db_path: str = "state.db",
+        session_path: Optional[str] = None,
     ):
         """Initialize LinkedIn Watcher.
 
@@ -57,47 +63,133 @@ class LinkedInWatcher(BaseWatcher):
             vault_path: Path to the Obsidian vault
             username: LinkedIn username/email
             password: LinkedIn password
-            access_token: Optional LinkedIn OAuth2 access token
             polling_interval: Seconds between LinkedIn checks (default: 300 = 5 minutes)
-            rate_limit_requests: Maximum requests per hour (default: 100)
-            rate_limit_window: Rate limit window in seconds (default: 3600 = 1 hour)
             check_interval: Seconds between watcher checks (default: 300)
             state_db_path: Path to SQLite state database (default: state.db)
+            session_path: Path to store Chrome session data (default: .linkedin_session)
         """
         super().__init__(vault_path, check_interval, state_db_path)
 
         self.username = username
         self.password = password
-        self.access_token = access_token
         self.polling_interval = polling_interval
-        self.rate_limit_requests = rate_limit_requests
-        self.rate_limit_window = rate_limit_window
-
+        self.session_path = session_path or str(vault_path / ".linkedin_session")
+        
         # Rate limiting tracking
         self.request_count = 0
         self.window_start = time.time()
+        self.rate_limit_requests = int(os.getenv("LINKEDIN_RATE_LIMIT_REQUESTS", "100"))
+        self.rate_limit_window = int(os.getenv("LINKEDIN_RATE_LIMIT_WINDOW", "3600"))
+        self.use_selenium_fallback = True  # Use Selenium for posting (no API access)
 
-        # Initialize LinkedIn API client
-        self.linkedin_client: Optional[Linkedin] = None
-        self.use_selenium_fallback = False
+        # Initialize Selenium WebDriver
+        self.driver: Optional[webdriver.Chrome] = None
+        self.is_logged_in = False
 
-        self._authenticate()
+        self._init_browser()
 
-        self.logger.info("LinkedIn Watcher initialized")
+        self.logger.info("LinkedIn Watcher initialized (Selenium mode)")
         self.logger.info(f"Polling interval: {polling_interval} seconds")
+        self.logger.info(f"Session path: {self.session_path}")
 
-    def _authenticate(self):
-        """Authenticate with LinkedIn API or fall back to Selenium."""
+    def _init_browser(self):
+        """Initialize Chrome WebDriver with LinkedIn session persistence."""
         try:
-            # Try LinkedIn API authentication
-            self.linkedin_client = Linkedin(self.username, self.password)
-            self.logger.info("LinkedIn API authentication successful")
-            self.use_selenium_fallback = False
-
+            # Configure Chrome options
+            chrome_options = Options()
+            # chrome_options.add_argument("--headless=new")  # Disabled for debugging
+            chrome_options.add_argument("--no-sandbox")
+            chrome_options.add_argument("--disable-dev-shm-usage")
+            chrome_options.add_argument("--disable-gpu")
+            chrome_options.add_argument("--window-size=1920,1080")
+            chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+            
+            # Persist session data (cookies, local storage)
+            chrome_options.add_argument(f"--user-data-dir={self.session_path}")
+            
+            # Initialize WebDriver
+            self.driver = webdriver.Chrome(options=chrome_options)
+            self.driver.set_page_load_timeout(30)
+            
+            self.logger.info("Chrome WebDriver initialized")
+            
+            # Check if already logged in (session persisted)
+            self._check_login_status()
+            
         except Exception as e:
-            self.logger.warning(f"LinkedIn API authentication failed: {e}")
-            self.logger.info("Will use Selenium fallback for LinkedIn access")
-            self.use_selenium_fallback = True
+            self.logger.error(f"Failed to initialize browser: {e}")
+            raise
+
+    def _check_login_status(self):
+        """Check if already logged into LinkedIn."""
+        try:
+            self.driver.get("https://www.linkedin.com/feed/")
+            time.sleep(3)
+            
+            # Check if we're on the feed page (logged in) or login page
+            if "feed" in self.driver.current_url:
+                self.is_logged_in = True
+                self.logger.info("Already logged into LinkedIn (session persisted)")
+            else:
+                self.is_logged_in = False
+                self.logger.info("LinkedIn session expired, will re-authenticate")
+                
+        except Exception as e:
+            self.logger.warning(f"Error checking login status: {e}")
+            self.is_logged_in = False
+
+    def _login(self):
+        """Log into LinkedIn using Selenium."""
+        if self.is_logged_in:
+            return True
+            
+        try:
+            self.logger.info("Logging into LinkedIn...")
+            self.driver.get("https://www.linkedin.com/login")
+            time.sleep(3)
+            
+            # Find and fill username field (try multiple selectors)
+            try:
+                username_field = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.NAME, "session_key"))
+                )
+                username_field.clear()
+                username_field.send_keys(self.username)
+            except TimeoutException:
+                self.logger.error("Login page did not load - username field not found")
+                return False
+            
+            # Find and fill password field
+            try:
+                password_field = self.driver.find_element(By.NAME, "session_password")
+                password_field.clear()
+                password_field.send_keys(self.password)
+            except TimeoutException:
+                self.logger.error("Password field not found")
+                return False
+            
+            # Submit login form
+            try:
+                sign_in_button = self.driver.find_element(By.XPATH, "//button[@type='submit']")
+                sign_in_button.click()
+                time.sleep(5)  # Wait for login to complete
+                
+                # Check if login was successful
+                if "feed" in self.driver.current_url or "mynetwork" in self.driver.current_url or "messaging" in self.driver.current_url:
+                    self.is_logged_in = True
+                    self.logger.info("Successfully logged into LinkedIn")
+                    return True
+                else:
+                    self.logger.error("Login failed - redirected to: %s", self.driver.current_url)
+                    return False
+                    
+            except TimeoutException:
+                self.logger.error("Sign in button not found")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Login error: {e}")
+            return False
 
     def _check_rate_limit(self) -> bool:
         """Check if rate limit allows another request.
@@ -128,101 +220,265 @@ class LinkedInWatcher(BaseWatcher):
         self.request_count += 1
 
     def check_for_updates(self) -> int:
-        """Check LinkedIn for new messages.
+        """Check LinkedIn for new messages using Selenium.
 
         Returns:
             Number of new messages found
         """
-        # Check rate limit
-        if not self._check_rate_limit():
-            # Wait until rate limit resets
-            current_time = time.time()
-            wait_time = self.rate_limit_window - (current_time - self.window_start)
-            time.sleep(wait_time)
-            return 0
-
         try:
-            if self.use_selenium_fallback:
-                return self._check_messages_selenium()
-            else:
-                return self._check_messages_api()
+            # Ensure logged in
+            if not self.is_logged_in:
+                self.logger.info("Not logged in, attempting login...")
+                if not self._login():
+                    self.logger.warning("LinkedIn login failed, skipping check")
+                    return 0
+
+            # Navigate to messaging INBOX - use feed first to avoid thread redirect
+            self.logger.debug("Navigating to LinkedIn feed first...")
+            self.driver.get("https://www.linkedin.com/feed/")
+            time.sleep(3)
+            
+            # Then click on messaging icon or navigate directly
+            self.logger.debug("Navigating to messaging inbox...")
+            self.driver.get("https://www.linkedin.com/messaging/")
+            time.sleep(5)
+            
+            # Check if we're on a thread page (redirected)
+            if "/messaging/thread/" in self.driver.current_url:
+                self.logger.debug("Redirected to thread, navigating back to inbox...")
+                # Go back to inbox
+                self.driver.get("https://www.linkedin.com/messaging/")
+                time.sleep(3)
+            
+            # Check if we were redirected to login
+            if "login" in self.driver.current_url:
+                self.logger.warning("Session expired, re-authenticating...")
+                self.is_logged_in = False
+                if not self._login():
+                    return 0
+                # Navigate to feed then messaging after login
+                self.driver.get("https://www.linkedin.com/feed/")
+                time.sleep(3)
+                self.driver.get("https://www.linkedin.com/messaging/")
+                time.sleep(5)
+
+            # Parse messages from page
+            return self._parse_messages()
 
         except Exception as e:
             self.logger.error(f"Error checking LinkedIn messages: {e}")
-            self.log_to_vault(
-                action="check",
-                result="failure",
-                error_message=str(e),
-            )
+            self.is_logged_in = False  # Force re-login on next check
             return 0
 
-    def _check_messages_api(self) -> int:
-        """Check for new LinkedIn messages using API.
+    def _mark_as_read(self, sender_name):
+        """Mark a LinkedIn conversation as read by clicking on it.
+        
+        Args:
+            sender_name: Name of the sender to mark as read
+        """
+        self.logger.info(f"Attempting to mark as read: {sender_name}")
+        try:
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.common.keys import Keys
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+            
+            # Find the conversation card by sender name
+            xpath = f"//div[contains(@class, 'msg-conversation-card') and contains(., '{sender_name}')]"
+            
+            self.logger.debug(f"Looking for conversation card: {xpath}")
+            
+            conversation_card = WebDriverWait(self.driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, xpath))
+            )
+            
+            if conversation_card:
+                self.logger.info(f"Found conversation with {sender_name}, clicking to mark as read...")
+                # Click on the card to mark as read
+                conversation_card.click()
+                time.sleep(3)
+                
+                # Go back to inbox
+                self.driver.get("https://www.linkedin.com/messaging/")
+                time.sleep(3)
+                
+                self.logger.info(f"✓ Marked conversation with {sender_name} as read")
+                return True
+            else:
+                self.logger.warning(f"Could not find conversation with {sender_name}")
+                return False
+                    
+        except Exception as e:
+            self.logger.error(f"Error marking as read: {e}")
+            return False
+
+    def _parse_messages(self) -> int:
+        """Parse LinkedIn messages from current page.
 
         Returns:
             Number of new messages found
         """
-        if not self.linkedin_client:
-            return 0
-
-        self._increment_request_count()
-
         try:
-            # Get conversations (LinkedIn API method)
-            conversations = self.linkedin_client.get_conversations()
-
+            soup = BeautifulSoup(self.driver.page_source, 'html.parser')
             new_count = 0
 
-            for conversation in conversations[:10]:  # Limit to 10 most recent
-                conversation_id = conversation.get("entityUrn", "")
+            # Find all conversation cards
+            conversations = soup.find_all(class_='msg-conversation-card')
+            
+            self.logger.info(f"Found {len(conversations)} conversations on page")
 
-                # Skip if already processed
-                if self.is_processed(conversation_id):
-                    continue
+            for conv in conversations[:10]:
+                try:
+                    # Extract sender name from image alt text
+                    name = None
+                    name_elem = conv.find('img', alt=True)
+                    if name_elem:
+                        name = name_elem['alt']
+                    
+                    if not name:
+                        # Try aria-label on link
+                        link_elem = conv.find('a', attrs={'aria-label': True})
+                        if link_elem:
+                            aria_label = link_elem['aria-label']
+                            if 'conversation with' in aria_label:
+                                name = aria_label.split('conversation with')[-1].strip()
+                    
+                    # Extract message preview - get ALL text and parse it
+                    # The card text contains: name, time, message, status
+                    card_text = conv.get_text(separator=' ', strip=True)
+                    
+                    # Remove the name from the text to get just the message
+                    if name and name in card_text:
+                        # Remove name and get what comes after
+                        parts = card_text.split(name, 1)
+                        if len(parts) > 1:
+                            message_text = parts[1]
+                            # Remove timestamps (like "4:25 AM", "Mar 6")
+                            import re
+                            message_text = re.sub(r'\d{1,2}:\d{2}\s*[AP]M', '', message_text)
+                            message_text = re.sub(r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}', '', message_text)
+                            # Remove UI text
+                            message_text = re.sub(r'\.\s*Active conversation', '', message_text)
+                            message_text = re.sub(r'\.\s*Press return.*', '', message_text)
+                            message_text = re.sub(r'\.\s*Open the options.*', '', message_text)
+                            message_text = message_text.strip(' .\n\t')
+                            message = message_text[:200] if message_text else "New LinkedIn conversation"
+                        else:
+                            message = "New LinkedIn conversation"
+                    else:
+                        message = card_text[:200] if card_text else "New LinkedIn conversation"
+                    
+                    if not name:
+                        self.logger.debug(f"Could not find sender name in conversation")
+                        continue
+                    
+                    conversation_id = f"li_msg_{hash(name)}"
 
-                # Get conversation details
-                messages = self.linkedin_client.get_conversation(conversation_id)
+                    # Skip if already processed
+                    if self.is_processed(conversation_id):
+                        self.logger.debug(f"Skipping already processed message from {name}")
+                        continue
 
-                if messages and len(messages) > 0:
-                    latest_message = messages[0]
-
-                    # Create task file for new message
+                    # Create task file
                     message_data = {
-                        "conversation_id": conversation_id,
-                        "sender": latest_message.get("from", {}).get("name", "Unknown"),
-                        "message": latest_message.get("body", ""),
+                        "sender": name,
+                        "message": message,
                         "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+                        "conversation_id": conversation_id,
+                        "source": "linkedin",
                     }
 
                     task_file = self.create_action_file(message_data)
                     relative_path = task_file.relative_to(self.vault_path)
                     self.mark_processed(conversation_id, str(relative_path))
+                    
+                    # Mark message as read on LinkedIn
+                    self._mark_as_read(name)
+                    
                     new_count += 1
+                    self.logger.info(f"✓ Created task for LinkedIn message from: {name}")
+
+                except Exception as e:
+                    self.logger.debug(f"Error parsing conversation: {e}")
+                    continue
+
+            if new_count == 0:
+                self.logger.info("No new LinkedIn messages found")
+            else:
+                self.logger.info(f"Found {new_count} new LinkedIn message(s)")
 
             return new_count
 
         except Exception as e:
-            self.logger.error(f"LinkedIn API error: {e}")
-            # Fall back to Selenium on API failure
-            self.use_selenium_fallback = True
+            self.logger.error(f"Parse error: {e}")
             return 0
 
-    def _check_messages_selenium(self) -> int:
-        """Check for new LinkedIn messages using Selenium (fallback).
+    def post_to_linkedin(self, content: str, hashtags: Optional[List[str]] = None) -> bool:
+        """Post update to LinkedIn.
+
+        Args:
+            content: Post content text
+            hashtags: Optional list of hashtags to add
 
         Returns:
-            Number of new messages found
+            True if post successful, False otherwise
         """
-        # Selenium implementation for when API is unavailable
-        # This is a simplified version - full implementation would need more robust scraping
-        self.logger.info("Using Selenium fallback for LinkedIn message checking")
+        try:
+            # Ensure logged in
+            if not self.is_logged_in:
+                if not self._login():
+                    return False
 
-        # For now, return 0 and log that Selenium fallback is not fully implemented
-        self.logger.warning("Selenium fallback not fully implemented yet")
-        return 0
+            # Navigate to feed
+            self.driver.get("https://www.linkedin.com/feed/")
+            time.sleep(3)
+
+            # Click post creation box
+            try:
+                post_box = WebDriverWait(self.driver, 10).until(
+                    EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'share-box-feed-entry')]"))
+                )
+                post_box.click()
+                time.sleep(2)
+
+                # Find text area and enter content
+                text_area = self.driver.find_element(By.XPATH, "//div[@contenteditable='true']")
+                text_area.send_keys(content)
+
+                # Add hashtags if provided
+                if hashtags:
+                    for tag in hashtags:
+                        text_area.send_keys(f" {tag}")
+
+                # Click post button
+                post_button = self.driver.find_element(
+                    By.XPATH,
+                    "//button[contains(@class, 'share-actions__primary-action')]"
+                )
+                post_button.click()
+                time.sleep(3)
+
+                self.logger.info("LinkedIn post published successfully")
+                return True
+
+            except TimeoutException:
+                self.logger.error("Post creation UI not found")
+                return False
+
+        except Exception as e:
+            self.logger.error(f"Post error: {e}")
+            return False
+
+    def __del__(self):
+        """Cleanup browser on deletion."""
+        if hasattr(self, 'driver') and self.driver:
+            try:
+                self.driver.quit()
+            except:
+                pass
 
     def create_action_file(self, message_data: Dict[str, Any]) -> Path:
-        """Create a task file for a LinkedIn message in the vault's Needs_Action folder.
+        """Create a task file for a LinkedIn message in the vault's Inbox/linkedin folder.
 
         Args:
             message_data: Dictionary containing message information
@@ -236,8 +492,9 @@ class LinkedInWatcher(BaseWatcher):
             message = message_data["message"]
             timestamp = message_data["timestamp"]
 
-            # Create filename
-            filename = f"LINKEDIN_MSG_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S')}Z_{sender.replace(' ', '-')}.md"
+            # Create filename using sender name (slugified for filesystem safety)
+            sender_slug = sender.replace(' ', '-').lower()
+            filename = f"LINKEDIN_MSG_{sender_slug}.md"
 
             # Create task file content
             content = f"""---
@@ -271,14 +528,13 @@ subject: LinkedIn message from {sender}
 - [ ] Move to /Done when finished
 """
 
-            # Write to Needs_Action folder
-            needs_action_dir = self.vault_path / "Needs_Action"
-            needs_action_dir.mkdir(exist_ok=True)
+            # Write to Inbox/linkedin folder (NOT Needs_Action)
+            inbox_dir = self.get_inbox_subfolder()
 
-            task_file = needs_action_dir / filename
+            task_file = inbox_dir / filename
             task_file.write_text(content)
 
-            self.logger.info(f"Created task file: {filename}")
+            self.logger.info(f"Created task file in Inbox: {filename}")
             self.log_to_vault(
                 action="create_task",
                 result="success",
@@ -286,6 +542,7 @@ subject: LinkedIn message from {sender}
                     "filename": filename,
                     "sender": sender,
                     "conversation_id": conversation_id,
+                    "location": "Inbox/linkedin",
                 },
             )
 
@@ -394,23 +651,94 @@ subject: LinkedIn message from {sender}
             Dictionary with post result
         """
         self.logger.info("Using Selenium fallback for LinkedIn posting")
-        self.logger.warning("Selenium fallback not fully implemented yet")
-
-        return {
-            "success": False,
-            "error": "Selenium fallback not implemented",
-        }
+        
+        try:
+            # Navigate to LinkedIn feed
+            self.driver.get("https://www.linkedin.com/feed/")
+            time.sleep(3)
+            
+            # Find the post creation box and click it
+            try:
+                # Look for the "Start a post" button
+                post_button = self.driver.find_element(By.XPATH, "//button[contains(@aria-label, 'Start a post')]")
+                post_button.click()
+                time.sleep(2)
+            except Exception as e:
+                self.logger.error(f"Could not find post button: {e}")
+                # Try alternative selector
+                try:
+                    post_button = self.driver.find_element(By.XPATH, "//div[contains(@class, 'share-box-feed-entry')]")
+                    post_button.click()
+                    time.sleep(2)
+                except Exception as e2:
+                    self.logger.error(f"Alternative post button also failed: {e2}")
+                    return {"success": False, "error": "Could not open post composer"}
+            
+            # Find the text area and enter content
+            try:
+                # LinkedIn uses a contenteditable div for the post text
+                text_area = self.driver.find_element(By.XPATH, "//div[@contenteditable='true']")
+                text_area.click()
+                time.sleep(1)
+                
+                # Clear any existing text
+                text_area.clear()
+                time.sleep(0.5)
+                
+                # Type the content (use send_keys for reliability)
+                for char in content:
+                    text_area.send_keys(char)
+                    time.sleep(0.01)  # Small delay to simulate typing
+                
+                time.sleep(2)
+            except Exception as e:
+                self.logger.error(f"Could not enter post content: {e}")
+                return {"success": False, "error": "Could not enter post content"}
+            
+            # Find and click the post button
+            try:
+                # Look for the "Post" button
+                post_submit = self.driver.find_element(By.XPATH, "//button[contains(@aria-label, 'Post')]")
+                post_submit.click()
+                time.sleep(3)
+                
+                self.logger.info("LinkedIn post published successfully")
+                
+                # Log the post
+                self._log_post(content)
+                
+                return {"success": True, "post_id": f"selenium_{int(time.time())}"}
+            except Exception as e:
+                self.logger.error(f"Could not submit post: {e}")
+                return {"success": False, "error": "Could not submit post"}
+                
+        except Exception as e:
+            self.logger.error(f"Error posting to LinkedIn: {e}")
+            return {"success": False, "error": str(e)}
+    
+    def _log_post(self, content: str):
+        """Log the post to the vault."""
+        try:
+            log_file = self.vault_path / "Logs" / "linkedin_posts.log"
+            timestamp = datetime.now(timezone.utc).isoformat()
+            with open(log_file, "a") as f:
+                f.write(f"\n---\nTimestamp: {timestamp}\nContent:\n{content[:200]}...\n")
+        except Exception as e:
+            self.logger.error(f"Could not log post: {e}")
 
 
 if __name__ == "__main__":
     import argparse
-    import os
+    from dotenv import load_dotenv
+
+    # Load environment variables from .env file (override=True to refresh cache)
+    load_dotenv(override=True)
 
     parser = argparse.ArgumentParser(description="LinkedIn Watcher")
     parser.add_argument("--vault", default=os.getenv("VAULT_PATH", "vault"), help="Path to Obsidian vault")
     parser.add_argument("--username", default=os.getenv("LINKEDIN_USERNAME"), help="LinkedIn username")
     parser.add_argument("--password", default=os.getenv("LINKEDIN_PASSWORD"), help="LinkedIn password")
-    parser.add_argument("--interval", type=int, default=int(os.getenv("LINKEDIN_CHECK_INTERVAL", "300")), help="Check interval in seconds")
+    parser.add_argument("--interval", type=int, default=int(os.getenv("LINKEDIN_POLLING_INTERVAL", "300")), help="Check interval in seconds")
     parser.add_argument("--state-db", default=os.getenv("STATE_DB_PATH", "state.db"), help="Path to state database")
 
     args = parser.parse_args()

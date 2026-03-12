@@ -1,8 +1,38 @@
 # Business Goals: Personal AI Employee
 
-**Version**: 1.0
-**Last Updated**: 2026-03-09
+**Version**: 1.1
+**Last Updated**: 2026-03-12
 **Status**: Active
+
+---
+
+## User Profile
+
+**Name**: Hunain Naeem Anwar
+
+**Technical Skills**:
+- **Frontend**: HTML, CSS, Tailwind CSS, Next.js, TypeScript
+- **Backend**: Python
+- **AI/LLM Engineering**: Prompt Engineering, Context Engineering, OpenAI Agent SDK, Claude Code
+
+**Education**: GIAIC (Governor's Initiative on Artificial Intelligence & Computing)
+
+**GitHub**: https://github.com/HunainNaeemAnwar
+
+**Professional Focus**:
+- Building autonomous AI agents for productivity and automation
+- Full-stack development with AI integration
+- Creating scalable AI-powered solutions
+
+**Content Themes for LinkedIn**:
+- AI automation tutorials and insights
+- Full-stack development tips
+- Prompt engineering best practices
+- Context engineering patterns
+- OpenAI Agent SDK tutorials
+- Claude Code workflows
+- Personal AI Employee project updates
+- GIAIC learning journey
 
 ---
 

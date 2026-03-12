@@ -1,7 +1,27 @@
 # Company Handbook
 
-**Version**: 1.0
-**Last Updated**: 2026-03-09
+**Version**: 1.1
+**Last Updated**: 2026-03-12
+
+---
+
+## User Profile
+
+**Name**: Hunain Naeem Anwar
+
+**Technical Skills**:
+- Frontend: HTML, CSS, Tailwind CSS, Next.js, TypeScript
+- Backend: Python
+- AI/LLM: Prompt Engineering, Context Engineering, OpenAI Agent SDK, Claude Code
+
+**Education**: GIAIC (Governor's Initiative on Artificial Intelligence & Computing)
+
+**GitHub**: https://github.com/HunainNaeemAnwar
+
+**Professional Brand**:
+- AI Automation Specialist
+- Full-Stack Developer with AI expertise
+- Building autonomous AI agents for productivity
 
 ---
 

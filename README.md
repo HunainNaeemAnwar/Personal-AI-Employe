@@ -55,11 +55,8 @@ uv venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 uv pip install -e .
 
-# Install Node.js dependencies for MCP email server
-cd mcp_servers/email_sender
-npm install
-npm run build
-cd ../..
+# Install MCP server dependencies
+pip install mcp google-api-python-client google-auth-oauthlib
 ```
 
 ### 2. Configure Environment
@@ -90,12 +87,16 @@ python vault_setup/create_vault.py --path ~/AI_Employee_Vault
 
 ```bash
 # Configure Claude Code to use email MCP server
-# Add to ~/.claude/config.json:
+# Add to ~/.config/claude-code/mcp.json:
 {
   "mcpServers": {
     "email-sender": {
-      "command": "node",
-      "args": ["/path/to/mcp_servers/email_sender/dist/index.js"]
+      "command": "python",
+      "args": ["/home/hunain/personal-ai-employee/mcp_servers/email_sender/server.py"],
+      "env": {
+        "GMAIL_CREDENTIALS_PATH": "/home/hunain/.credentials/gmail-credentials.json",
+        "GMAIL_TOKEN_PATH": "/home/hunain/.credentials/gmail-token.json"
+      }
     }
   }
 }
@@ -165,12 +166,8 @@ personal-ai-employee/
 │   └── task_executor.py
 ├── mcp_servers/
 │   └── email_sender/
-│       ├── package.json
-│       ├── tsconfig.json
-│       ├── src/
-│       │   ├── index.ts
-│       │   └── gmail-client.ts
-│       └── dist/
+│       ├── server.py            # Python MCP server (FastMCP)
+│       └── gmail_client.py      # Gmail API wrapper
 ├── vault_setup/
 │   ├── __init__.py
 │   ├── create_vault.py
