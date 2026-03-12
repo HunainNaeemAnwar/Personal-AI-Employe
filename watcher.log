@@ -1,0 +1,8 @@
+nohup: ignoring input
+[2026-03-08 22:57:29] [GmailWatcher] [INFO] Gmail Watcher initialized with query: is:unread is:important
+[2026-03-08 22:57:29] [GmailWatcher] [INFO] Starting GmailWatcher
+[2026-03-08 22:57:29] [GmailWatcher] [INFO] Monitoring with check interval: 120 seconds
+[2026-03-08 22:57:29] [GmailWatcher] [INFO] Vault path: /home/hunain/AI_Employee_Vault
+[2026-03-08 22:57:29] [GmailWatcher] [INFO] Created task file: EMAIL_20260308T175729Z_new-device-signed-in-to-your-aihubmix-account.md
+[2026-03-08 22:57:30] [GmailWatcher] [INFO] Created task file: EMAIL_20260308T175730Z_re-for-project-proposal-plan.md
+[2026-03-08 22:57:30] [GmailWatcher] [INFO] Found 2 new items

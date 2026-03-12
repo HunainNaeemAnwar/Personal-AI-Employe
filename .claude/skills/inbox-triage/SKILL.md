@@ -44,7 +44,7 @@ For each file in Inbox:
    - **Low**: Newsletters, notifications, FYI items
 
 3. **Check if action is needed**:
-   - If NO action needed → Move to `/Done/` or `/Rejected/`
+   - If NO action needed (FYI only) → Move to `/Done/`
    - If action needed → Move to `/Needs_Action/`
 
 ### Step 3: Move to Needs_Action
@@ -68,6 +68,55 @@ triaged_at: 2026-03-12T12:00:00Z
 triage_priority: high
 triage_notes: "Client email - respond within 4 hours"
 ---
+```
+
+## ⚠️ IMPORTANT: Execution Rules
+
+**DO NOT move to /Done/ until action is ACTUALLY completed:**
+
+| Task Type | When to Move to Done |
+|-----------|---------------------|
+| Email reply | ✅ AFTER sending via Gmail MCP |
+| LinkedIn message | ✅ AFTER sending via LinkedIn |
+| File processing | ✅ AFTER file is processed/extracted |
+| FYI/Informational | ✅ Immediately (no action needed) |
+
+**Wrong Workflow** ❌:
+```
+Read message → Draft response → Move to Done
+                          ↓
+                  (Never actually sent!)
+```
+
+**Correct Workflow** ✅:
+```
+Read message → Draft response → Execute (send) → Move to Done
+                                    ↓
+                          Actually send the message!
+```
+
+## Execution Commands
+
+### For LinkedIn Messages:
+```bash
+# 1. Draft response (in task file)
+# 2. Send via LinkedIn (use linkedin_watcher or manual)
+# 3. THEN move to Done
+
+# Example: Send LinkedIn message
+claude "Send this LinkedIn reply: [message content]"
+
+# After sending, move to Done
+mv AI_Employee_Vault/Needs_Action/linkedin/LINKEDIN_MSG_*.md AI_Employee_Vault/Done/linkedin/
+```
+
+### For Email Replies:
+```bash
+# 1. Draft response
+# 2. Send via Email MCP Server
+claude "Send email using MCP: [draft content]"
+
+# 3. After sending, move to Done
 ```
 
 ## Priority Guidelines
