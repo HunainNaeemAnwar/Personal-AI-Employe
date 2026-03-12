@@ -100,14 +100,24 @@ Read message → Draft response → Execute (send) → Move to Done
 ### For LinkedIn Messages:
 ```bash
 # 1. Draft response (in task file)
-# 2. Send via LinkedIn (use linkedin_watcher or manual)
-# 3. THEN move to Done
+# 2. Send via LinkedIn MCP Server
+claude "Send LinkedIn message using MCP server"
 
-# Example: Send LinkedIn message
-claude "Send this LinkedIn reply: [message content]"
+# MCP will:
+# - Login to LinkedIn (if not already)
+# - Find the recipient
+# - Send the drafted message
+# - Log to /Logs/linkedin_sent.log
 
-# After sending, move to Done
+# 3. After sending confirmed, move to Done
 mv AI_Employee_Vault/Needs_Action/linkedin/LINKEDIN_MSG_*.md AI_Employee_Vault/Done/linkedin/
+```
+
+**Example MCP Command:**
+```bash
+claude "Use linkedin-sender MCP to send this message:
+Recipient: Hunain Naeem Anwar
+Message: Hi! Thanks for reaching out. How can I help you today?"
 ```
 
 ### For Email Replies:
