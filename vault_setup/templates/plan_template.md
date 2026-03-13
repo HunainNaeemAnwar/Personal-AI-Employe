@@ -9,6 +9,25 @@ failed_steps: 0
 
 # Task Plan: {{TASK_TITLE}}
 
+## ⚠️ Required Skill for Execution
+
+**Use this skill:** `{{SKILL_NAME}}`
+
+**Available Skills:**
+- `inbox-triage` - Move files from Inbox → Needs_Action
+- `email-triage` - Process emails/LinkedIn messages in Needs_Action
+- `task-planning` - Create plans for complex multi-step tasks
+- `approval-workflow` - Handle approval/rejection workflows
+- `linkedin-posting` - Create LinkedIn business posts
+
+**Example Usage:**
+```bash
+claude "Use email-triage skill to process LINKEDIN_MSG_*.md"
+claude "Use approval-workflow to approve TASK_ID"
+```
+
+---
+
 ## Task Analysis
 
 **Objective**: {{TASK_OBJECTIVE}}

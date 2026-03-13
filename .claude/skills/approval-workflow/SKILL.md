@@ -4,6 +4,28 @@ description: Evaluate tasks against approval thresholds and manage human-in-the-
 
 # SKILL: Approval Workflow
 
+## ⚠️ REQUIRED: Use This Skill For
+
+**ALWAYS use `approval-workflow` skill when:**
+- Task exceeds approval thresholds (payment >$500, client communications, social media posts)
+- User says: "approve task", "reject task"
+- Moving tasks: `/Needs_Action/` → `/Pending_Approval/`
+- Processing approval decisions
+
+**DO NOT use:** for tasks under thresholds (use email-triage directly)
+
+## Skill Selection Matrix
+
+| Task Type | Threshold | Skill to Use |
+|-----------|-----------|--------------|
+| Client email | Any | `email-triage` → `approval-workflow` |
+| Payment $100-500 | Medium | `approval-workflow` |
+| Payment >$500 | High | `approval-workflow` |
+| Social media post | Any | `linkedin-posting` → `approval-workflow` |
+| Bulk operation (>10) | Any | `approval-workflow` |
+
+---
+
 ## When to Use This Skill
 
 Use this skill when:

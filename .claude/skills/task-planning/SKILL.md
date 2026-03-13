@@ -4,6 +4,69 @@ description: Create structured Plan.md files for multi-step tasks with complete 
 
 # SKILL: Task Planning
 
+## ⚠️ REQUIRED: Use This Skill For
+
+**ALWAYS use `task-planning` skill when:**
+- Task requires 3+ steps to complete
+- Task involves multiple systems (email + LinkedIn + files)
+- Task has dependencies or prerequisites
+- User says: "plan this task", "create execution plan"
+- **IMPORTANT:** After creating plan, ADD to Plan.md: "Use `<skill-name>` skill for execution"
+
+**DO NOT use:** for simple single-step tasks (use email-triage directly)
+
+## Skill Selection Matrix
+
+| Task Complexity | Steps Required | Skill to Use |
+|----------------|----------------|--------------|
+| Simple (reply email) | 1-2 steps | `email-triage` |
+| Medium (process file) | 2-3 steps | `email-triage` |
+| Complex (multi-system) | 3+ steps | `task-planning` THEN specified skill |
+
+## Plan.md Template - REQUIRED Format
+
+**ALWAYS include in Plan.md:**
+
+```markdown
+## ⚠️ Required Skill for Execution
+
+**Use this skill:** `<skill-name>`
+
+Choose from:
+- `email-triage` - For processing emails, LinkedIn messages, file drops
+- `linkedin-posting` - For creating LinkedIn business posts
+- `approval-workflow` - For approval/rejection decisions
+- `inbox-triage` - For moving Inbox → Needs_Action
+```
+
+**How to determine which skill:**
+1. Read the task file type
+2. Check task location
+3. Use Skill Selection Matrix above
+4. **WRITE THE SKILL NAME in Plan.md**
+
+**Example Plan.md Header:**
+```markdown
+---
+task_id: LINKEDIN_MSG_hunain-naeem-anwar
+created_at: 2026-03-13T01:00:00Z
+status: pending
+---
+
+# Task Plan: Respond to LinkedIn Message
+
+## ⚠️ Required Skill for Execution
+
+**Use this skill:** `email-triage`
+
+---
+
+## Task Analysis
+...
+```
+
+---
+
 ## When to Use This Skill
 
 Use this skill when:

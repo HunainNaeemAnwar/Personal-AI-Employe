@@ -4,6 +4,26 @@ description: Generate engaging LinkedIn posts for business development and lead 
 
 # SKILL: LinkedIn Posting
 
+## ⚠️ REQUIRED: Use This Skill For
+
+**ALWAYS use `linkedin-posting` skill when:**
+- Creating LinkedIn business posts
+- User says: "create LinkedIn post", "post on LinkedIn"
+- Sharing business updates, milestones, insights
+- **IMPORTANT:** After creating post, move to `/Pending_Approval/` (requires approval before posting)
+
+**DO NOT use:** for LinkedIn messages (use `email-triage` for messages)
+
+## Skill Selection Matrix
+
+| Content Type | Skill to Use | Approval Required? |
+|-------------|--------------|-------------------|
+| LinkedIn Post (business) | `linkedin-posting` | ✅ YES |
+| LinkedIn Message | `email-triage` | ❌ NO |
+| LinkedIn Connection reply | `email-triage` | ❌ NO |
+
+---
+
 ## When to Use This Skill
 
 Use this skill when:

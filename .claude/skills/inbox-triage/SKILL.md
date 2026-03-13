@@ -6,6 +6,15 @@ version: 1.0.0
 
 # Inbox Triage Skill
 
+## ⚠️ REQUIRED: Use This Skill For
+
+**ALWAYS use `inbox-triage` skill when:**
+- User says: "triage inbox", "process inbox", "check inbox"
+- Files exist in `/Inbox/*/` folders
+- Moving files from Inbox → Needs_Action
+
+**DO NOT use:** email-triage, task-planning, or other skills for inbox triage!
+
 ## Purpose
 
 Files created by watchers are stored in `/Inbox/<source>/` folders. This skill triages those files and moves them to `/Needs_Action/` for processing.

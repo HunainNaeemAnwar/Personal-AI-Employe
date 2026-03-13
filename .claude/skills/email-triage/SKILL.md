@@ -5,6 +5,32 @@ description: Analyze incoming emails and categorize by urgency and action requir
 
 # Email Triage
 
+## ⚠️ REQUIRED: Use This Skill For
+
+**ALWAYS use `email-triage` skill when:**
+- User says: "process emails", "process tasks", "process LinkedIn messages"
+- Files are in `/Needs_Action/` folder (NOT Inbox)
+- Task type is: `email`, `linkedin_message`, `file_drop`
+- Need to assess priority and create action plan
+
+**DO NOT use:** 
+- `inbox-triage` (that's for Inbox → Needs_Action)
+- `task-planning` (that's auto-created by this skill)
+- `approval-workflow` (use only if threshold exceeded)
+
+## Skill Selection Matrix
+
+| Task Location | Task Type | Skill to Use |
+|--------------|-----------|--------------|
+| `/Inbox/*/` | Any | `inbox-triage` |
+| `/Needs_Action/` | Email | `email-triage` |
+| `/Needs_Action/` | LinkedIn Message | `email-triage` |
+| `/Needs_Action/` | File Drop | `email-triage` |
+| Complex multi-step | Any | `task-planning` (auto) |
+| Needs approval | Any | `approval-workflow` |
+
+---
+
 ## Instructions
 
 1. **Read the email task file** from `/Needs_Action`
