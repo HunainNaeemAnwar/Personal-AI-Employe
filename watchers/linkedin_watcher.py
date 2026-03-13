@@ -138,6 +138,44 @@ class LinkedInWatcher(BaseWatcher):
             self.logger.warning(f"Error checking login status: {e}")
             self.is_logged_in = False
 
+    def _ensure_logged_in(self) -> bool:
+        """Ensure we're logged into LinkedIn.
+        
+        Returns:
+            True if logged in, False otherwise
+        """
+        if not self.driver:
+            if not self._init_driver():
+                return False
+        
+        try:
+            # Navigate to feed to check login state
+            self.driver.get("https://www.linkedin.com/feed/")
+            time.sleep(3)
+            
+            # Check if we're on feed page (logged in) or login page
+            if "feed" in self.driver.current_url or "mynetwork" in self.driver.current_url:
+                self.logger.info("Already logged into LinkedIn (session persisted)")
+                self.is_logged_in = True
+                return True
+            elif "login" in self.driver.current_url:
+                self.logger.info("Session expired, need to login")
+                self.is_logged_in = False
+                return False
+            else:
+                # Check for My Network page (also indicates logged in)
+                if "mynetwork" in self.driver.current_url:
+                    self.is_logged_in = True
+                    return True
+                # Unknown state, assume need login
+                self.is_logged_in = False
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Error checking login status: {e}")
+            self.is_logged_in = False
+            return False
+    
     def _login(self):
         """Log into LinkedIn using Selenium."""
         if self.is_logged_in:
@@ -226,8 +264,8 @@ class LinkedInWatcher(BaseWatcher):
             Number of new messages found
         """
         try:
-            # Ensure logged in
-            if not self.is_logged_in:
+            # Ensure logged in by checking actual page state
+            if not self._ensure_logged_in():
                 self.logger.info("Not logged in, attempting login...")
                 if not self._login():
                     self.logger.warning("LinkedIn login failed, skipping check")
