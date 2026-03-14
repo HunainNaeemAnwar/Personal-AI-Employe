@@ -271,23 +271,42 @@ class LinkedInWatcher(BaseWatcher):
                     self.logger.warning("LinkedIn login failed, skipping check")
                     return 0
 
-            # Navigate to messaging INBOX - use feed first to avoid thread redirect
-            self.logger.debug("Navigating to LinkedIn feed first...")
+            # Navigate to messaging INBOX with cache bypass
+            # LinkedIn uses dynamic loading, so we need to force refresh
+            self.logger.debug("Navigating to LinkedIn messaging inbox...")
+            
+            # First go to feed to establish session
             self.driver.get("https://www.linkedin.com/feed/")
             time.sleep(3)
             
-            # Then click on messaging icon or navigate directly
-            self.logger.debug("Navigating to messaging inbox...")
-            self.driver.get("https://www.linkedin.com/messaging/")
-            time.sleep(5)
+            # Navigate to messaging with cache-busting timestamp
+            # This forces LinkedIn to reload the page fresh
+            messaging_url = f"https://www.linkedin.com/messaging/?t={int(time.time())}"
+            self.driver.get(messaging_url)
+            time.sleep(5)  # Wait for initial page load
             
+            # Wait for conversation list to appear (LinkedIn loads dynamically)
+            try:
+                from selenium.webdriver.support.ui import WebDriverWait
+                from selenium.webdriver.support import expected_conditions as EC
+                from selenium.webdriver.common.by import By
+                
+                # Wait for conversation cards to load (max 15 seconds)
+                WebDriverWait(self.driver, 15).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, ".msg-conversation-list"))
+                )
+                self.logger.debug("Conversation list loaded successfully")
+            except Exception as wait_error:
+                self.logger.debug(f"Conversation list wait timeout (page may still have content): {wait_error}")
+                # Continue anyway - page might still have content from cache
+
             # Check if we're on a thread page (redirected)
             if "/messaging/thread/" in self.driver.current_url:
                 self.logger.debug("Redirected to thread, navigating back to inbox...")
                 # Go back to inbox
-                self.driver.get("https://www.linkedin.com/messaging/")
+                self.driver.get(f"https://www.linkedin.com/messaging/?t={int(time.time())}")
                 time.sleep(3)
-            
+
             # Check if we were redirected to login
             if "login" in self.driver.current_url:
                 self.logger.warning("Session expired, re-authenticating...")
@@ -297,7 +316,7 @@ class LinkedInWatcher(BaseWatcher):
                 # Navigate to feed then messaging after login
                 self.driver.get("https://www.linkedin.com/feed/")
                 time.sleep(3)
-                self.driver.get("https://www.linkedin.com/messaging/")
+                self.driver.get(f"https://www.linkedin.com/messaging/?t={int(time.time())}")
                 time.sleep(5)
 
             # Parse messages from page
@@ -362,8 +381,10 @@ class LinkedInWatcher(BaseWatcher):
 
             # Find all conversation cards
             conversations = soup.find_all(class_='msg-conversation-card')
-            
+
             self.logger.info(f"Found {len(conversations)} conversations on page")
+            self.logger.debug(f"Page URL: {self.driver.current_url}")
+            self.logger.debug(f"Page title: {self.driver.title}")
 
             for conv in conversations[:10]:
                 try:
@@ -372,7 +393,7 @@ class LinkedInWatcher(BaseWatcher):
                     name_elem = conv.find('img', alt=True)
                     if name_elem:
                         name = name_elem['alt']
-                    
+
                     if not name:
                         # Try aria-label on link
                         link_elem = conv.find('a', attrs={'aria-label': True})
@@ -380,11 +401,11 @@ class LinkedInWatcher(BaseWatcher):
                             aria_label = link_elem['aria-label']
                             if 'conversation with' in aria_label:
                                 name = aria_label.split('conversation with')[-1].strip()
-                    
+
                     # Extract message preview - get ALL text and parse it
                     # The card text contains: name, time, message, status
                     card_text = conv.get_text(separator=' ', strip=True)
-                    
+
                     # Remove the name from the text to get just the message
                     if name and name in card_text:
                         # Remove name and get what comes after
@@ -405,16 +426,21 @@ class LinkedInWatcher(BaseWatcher):
                             message = "New LinkedIn conversation"
                     else:
                         message = card_text[:200] if card_text else "New LinkedIn conversation"
-                    
+
                     if not name:
                         self.logger.debug(f"Could not find sender name in conversation")
                         continue
 
-                    # Use stable hash (hashlib) instead of hash() which changes between runs
+                    # Use stable hash with sender name + message preview to detect new messages in same conversation
+                    # This allows detecting new messages from the same person (not just new conversations)
                     import hashlib
-                    conversation_id = f"li_msg_{hashlib.md5(name.encode()).hexdigest()[:16]}"
+                    message_hash_input = f"{name}:{message[:50]}"  # Include first 50 chars of message
+                    conversation_id = f"li_msg_{hashlib.md5(message_hash_input.encode()).hexdigest()[:16]}"
 
-                    # Skip if already processed
+                    self.logger.debug(f"Processing: {name} - Message preview: {message[:30]}...")
+                    self.logger.debug(f"Conversation ID: {conversation_id}")
+
+                    # Skip if already processed (this specific message)
                     if self.is_processed(conversation_id):
                         self.logger.debug(f"Skipping already processed message from {name}")
                         continue
@@ -431,12 +457,16 @@ class LinkedInWatcher(BaseWatcher):
                     task_file = self.create_action_file(message_data)
                     relative_path = task_file.relative_to(self.vault_path)
                     self.mark_processed(conversation_id, str(relative_path))
-                    
-                    # Mark message as read on LinkedIn
-                    self._mark_as_read(name)
-                    
-                    new_count += 1
+
                     self.logger.info(f"✓ Created task for LinkedIn message from: {name}")
+                    new_count += 1
+
+                    # Mark message as read on LinkedIn AFTER successfully creating task
+                    try:
+                        self._mark_as_read(name)
+                    except Exception as mark_error:
+                        self.logger.warning(f"Failed to mark message as read: {mark_error}")
+                        # Continue anyway - task was created successfully
 
                 except Exception as e:
                     self.logger.debug(f"Error parsing conversation: {e}")
@@ -532,9 +562,14 @@ class LinkedInWatcher(BaseWatcher):
             message = message_data["message"]
             timestamp = message_data["timestamp"]
 
-            # Create filename using sender name (slugified for filesystem safety)
-            sender_slug = sender.replace(' ', '-').lower()
-            filename = f"LINKEDIN_MSG_{sender_slug}.md"
+            # Create filename using timestamp + sender name (slugified for filesystem safety)
+            # This ensures each message gets a unique file, even from the same sender
+            import hashlib
+            timestamp_str = timestamp.replace(':', '').replace('-', '').replace('+', '').replace('Z', '')[:15]  # YYYYMMDDTHHMMSS
+            sender_slug = sender.replace(' ', '-').lower()[:30]  # Limit sender name length
+            # Add short hash of message to ensure uniqueness for rapid messages
+            msg_hash = hashlib.md5(message[:30].encode()).hexdigest()[:6]
+            filename = f"LINKEDIN_MSG_{timestamp_str}_{sender_slug}_{msg_hash}.md"
 
             # Create task file content
             content = f"""---
