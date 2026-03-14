@@ -1,10 +1,10 @@
 ---
 name: inbox-triage
 description: Triage inbox items and move to Needs_Action for processing
-version: 1.0.0
+version: 3.0
 ---
 
-# Inbox Triage Skill
+# SKILL: Inbox Triage
 
 ## ⚠️ REQUIRED: Use This Skill For
 
@@ -15,34 +15,38 @@ version: 1.0.0
 
 **DO NOT use:** email-triage, task-planning, or other skills for inbox triage!
 
-## Purpose
+## Skill Selection Matrix
 
-Files created by watchers are stored in `/Inbox/<source>/` folders. This skill triages those files and moves them to `/Needs_Action/` for processing.
+| User Command | Task Location | Skill to Use |
+|--------------|--------------|--------------|
+| "Triage inbox" | `/Inbox/gmail/` | `inbox-triage` |
+| "Triage inbox" | `/Inbox/filesystem/` | `inbox-triage` |
+| "Triage inbox" | `/Inbox/linkedin/` | `inbox-triage` |
+| "Process emails" | `/Needs_Action/` | `email-triage` |
+| "Process LinkedIn messages" | `/Needs_Action/` | `email-triage` |
+| "Process file drops" | `/Needs_Action/` | `email-triage` |
+| "Plan this complex task" | `/Needs_Action/` | `task-planning` |
+| "Approve task TASK_ID" | `/Pending_Approval/` | `approval-workflow` |
+| "Create LinkedIn post" | N/A (new content) | `linkedin-posting` |
 
-## Inbox Structure
+---
 
-```
-AI_Employee_Vault/Inbox/
-├── gmail/
-│   └── EMAIL_<subject-slug>.md
-├── filesystem/
-│   └── FILE_DROP_<filename-slug>.md
-└── linkedin/
-    └── LINKEDIN_MSG_<sender-slug>.md
-```
+## 🎯 PRIMARY MISSION
 
-## Triage Workflow
+> "Move files from /Inbox/<source>/ to /Needs_Action/ with proper priority assessment, then AUTOMATICALLY trigger email-triage skill to process them."
 
-### Step 1: Check Inbox Folders
+---
 
-List files in each inbox subfolder:
+## 📋 Triage Workflow WITH SKILL CHAINING
+
+### **Step 1: Check Inbox Folders**
 ```bash
 ls AI_Employee_Vault/Inbox/gmail/
 ls AI_Employee_Vault/Inbox/filesystem/
 ls AI_Employee_Vault/Inbox/linkedin/
 ```
 
-### Step 2: Review Each File
+### **Step 2: Review Each File**
 
 For each file in Inbox:
 
@@ -52,32 +56,20 @@ For each file in Inbox:
    - **Medium**: Regular communications, important files
    - **Low**: Newsletters, notifications, FYI items
 
-3. **Check if action is needed**:
-   - If NO action needed (FYI only) → Move to `/Done/`
-   - If action needed → Move to `/Needs_Action/`
+3. **Move to Needs_Action** with priority metadata
 
-### Step 3: Move to Needs_Action
+### **Step 3: HARDCODED SKILL CHAINING** ⚠️ CRITICAL
 
-For files requiring action:
+**AFTER moving files to Needs_Action, AUTOMATICALLY trigger:**
 
 ```bash
-# Move from Inbox to Needs_Action
-mv AI_Employee_Vault/Inbox/gmail/EMAIL_*.md AI_Employee_Vault/Needs_Action/
-mv AI_Employee_Vault/Inbox/filesystem/FILE_DROP_*.md AI_Employee_Vault/Needs_Action/
-mv AI_Employee_Vault/Inbox/linkedin/LINKEDIN_MSG_*.md AI_Employee_Vault/Needs_Action/
+# HARDCODED: Always call email-triage after inbox-triage
+claude "Use email-triage skill to process all tasks in Needs_Action"
 ```
 
-### Step 4: Add Triage Notes (Optional)
+**Why?** Inbox-triage ONLY moves files. Email-triage actually PROCESSES them.
 
-Add triage metadata to the file:
-
-```markdown
 ---
-triaged_at: 2026-03-12T12:00:00Z
-triage_priority: high
-triage_notes: "Client email - respond within 4 hours"
----
-```
 
 ## ⚠️ IMPORTANT: Execution Rules
 
@@ -104,129 +96,140 @@ Read message → Draft response → Execute (send) → Move to Done
                           Actually send the message!
 ```
 
-## Execution Commands
+---
 
-### For LinkedIn Messages (Using Playwright MCP):
+## 📊 Priority Guidelines
 
-**Option 1: Manual Send with Playwright**
-```bash
-# 1. Navigate to LinkedIn
-"Navigate to https://www.linkedin.com/messaging"
+### **High Priority (Flag for Immediate Attention)**
 
-# 2. Find and click conversation
-"Click on conversation with [Recipient Name]"
+**Keywords**: urgent, asap, deadline, critical, emergency
 
-# 3. Type and send message
-"Type this message: [draft content]"
-"Press Enter to send"
+**Sender Types**:
+- Clients with active projects
+- Financial institutions
+- Legal/government
 
-# 4. Verify sent
-"Take screenshot to confirm message sent"
-
-# 5. Move to Done
-mv AI_Employee_Vault/Needs_Action/linkedin/*.md AI_Employee_Vault/Done/linkedin/
-```
-
-**Option 2: Use LinkedIn MCP Server (If Working)**
-```bash
-# Test connection first
-"Test LinkedIn connection"
-
-# If connected, send message
-"Send LinkedIn message using linkedin-sender MCP:
-Recipient: [Name]
-Message: [Content]"
-
-# After success, move to Done
-```
-
-### For Email Replies:
-```bash
-# 1. Draft response
-# 2. Send via Email MCP Server
-claude "Send email using MCP: [draft content]"
-
-# 3. After sending, move to Done
-```
-
-## Priority Guidelines
-
-### High Priority (Process Immediately)
-- Client emails with deadlines
-- Keywords: urgent, asap, deadline, critical, emergency
-- Financial matters (invoices, payments)
-- Legal documents requiring signature
-
-### Medium Priority (Process Within 24 Hours)
-- Regular client communications
-- Internal team requests
-- Document reviews
-- Important file attachments (PDF, DOCX, XLSX)
-
-### Low Priority (Process When Convenient)
-- Newsletters and informational emails
-- Non-urgent updates
-- General inquiries
-- FYI notifications
-
-## Automation Rule
-
-**Run this triage automatically when:**
-1. New files appear in any `/Inbox/` folder
-2. User runs: `claude "Triage inbox"`
-3. Scheduled triage time (e.g., every hour)
-
-## Example Commands
-
-```bash
-# Triage all inbox folders
-claude "Triage inbox - move all files to Needs_Action with priority assessment"
-
-# Triage specific folder
-claude "Triage Gmail inbox only"
-
-# Check inbox status
-claude "How many items are in Inbox?"
-```
-
-## Triage Report Format
-
-After triage, create a summary:
-
-```markdown
-## Triage Report - 2026-03-12 12:00
-
-### Processed
-- Gmail: 3 files → Moved to Needs_Action
-- Filesystem: 1 file → Moved to Needs_Action
-- LinkedIn: 2 files → Moved to Needs_Action
-
-### Priority Breakdown
-- High: 2 items
-- Medium: 3 items
-- Low: 1 item
-
-### Next Actions
-- 2 items require immediate attention
-- 3 items scheduled for today
-- 1 item can wait
-```
-
-## Important Notes
-
-1. **Never delete inbox files** - Always move to Done/Rejected if no action needed
-2. **Preserve filenames** - Don't rename during triage
-3. **Add context** - Include triage notes for complex items
-4. **Check duplicates** - If same item already in Needs_Action, skip
-
-## Error Handling
-
-If file move fails:
-1. Log error to `/Logs/triage_errors.log`
-2. Keep file in Inbox
-3. Retry on next triage cycle
-4. Alert user if persistent failures
+**Action**: Move to Needs_Action, flag as HIGH, then call email-triage
 
 ---
 
-**Mnemonic**: Inbox = Raw incoming | Needs_Action = Ready to work
+### **Medium Priority (Process Within 24 Hours)**
+
+**Keywords**: meeting, review, feedback, proposal
+
+**Sender Types**:
+- Regular clients
+- Colleagues
+- Service providers
+
+**Action**: Move to Needs_Action, flag as MEDIUM, then call email-triage
+
+---
+
+### **Low Priority (Process When Convenient)**
+
+**Keywords**: newsletter, update, notification, FYI
+
+**Sender Types**:
+- Automated systems
+- Marketing emails
+- Social media
+
+**Action**: Move to Needs_Action, flag as LOW, then call email-triage
+
+---
+
+## 🔗 HARDCODED SKILL CHAINS
+
+### **After Inbox-Triage Completes:**
+
+```markdown
+## NEXT SKILL TO CALL (HARDCODED)
+
+**Skill:** `email-triage`
+
+**Command:**
+```bash
+claude "Use email-triage skill to process all tasks in Needs_Action"
+```
+
+**What email-triage does:**
+1. Reads each task file in Needs_Action
+2. Assesses priority using Company_Handbook.md
+3. Checks if approval is needed
+4. If approval needed → Moves to /Pending_Approval/ → Calls `approval-workflow`
+5. If no approval → Executes task (sends email/LinkedIn message)
+6. Logs result and moves to /Done/
+```
+
+---
+
+## 📝 Execution Commands
+
+### **For LinkedIn Messages (via email-triage):**
+
+**Use Playwright MCP (Built-in to Qwen)**
+```bash
+# 1. Navigate to LinkedIn Messaging
+"Navigate to https://www.linkedin.com/messaging"
+
+# 2. Search for recipient
+"Click on search box"
+"Type: [Recipient Name]"
+
+# 3. Open conversation
+"Click on first result"
+
+# 4. Type and send message
+"Click on message input"
+"Type: [DRAFTED_RESPONSE]"
+"Press Enter to send"
+
+# 5. Verify and log
+"Take screenshot"
+"Log to /Logs/linkedin_messages.log"
+
+# 6. Move to Done
+mv AI_Employee_Vault/Needs_Action/linkedin/*.md AI_Employee_Vault/Done/linkedin/
+```
+
+### **For Email Replies (via email-triage):**
+
+**Use Email MCP Server**
+```bash
+# Send via Email MCP Server
+claude "Send email using MCP: [draft content]"
+
+# After sending, move to Done
+```
+
+---
+
+## 📊 Quality Checklist
+
+Before completing triage, verify:
+
+- [ ] All Inbox folders checked (gmail, filesystem, linkedin)
+- [ ] Priority assessed for each file
+- [ ] Files moved to correct folder (Needs_Action or Done)
+- [ ] Triage metadata added (timestamp, priority)
+- [ ] **HARDCODED: email-triage skill called** to process tasks
+- [ ] High-priority items flagged for immediate attention
+
+---
+
+## 📈 Performance Metrics
+
+| Metric | Target | How to Measure |
+|--------|--------|----------------|
+| Triage Time | <5 minutes | Time from command to completion |
+| Priority Accuracy | >95% | Correct priority assignments |
+| File Movement | 100% | All files moved to correct folder |
+| Skill Chaining | 100% | email-triage called after inbox-triage |
+| Metadata Complete | 100% | All files have triage metadata |
+
+---
+
+*Last Updated: 2026-03-14*  
+*Version: 3.0*  
+*Primary Focus: Inbox Triage with Hardcoded Skill Chaining*

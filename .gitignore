@@ -78,3 +78,6 @@ node_modules/
 
 # Qwen agent config
 QWEN.md
+
+# Qwen Code config
+.qwen/

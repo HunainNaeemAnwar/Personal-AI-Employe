@@ -1,340 +1,302 @@
 ---
 name: email-triage
-description: Analyze incoming emails and categorize by urgency and action required. Use when processing email tasks from /Needs_Action.
+description: Analyze incoming emails and LinkedIn messages, then process or route to approval
+version: 3.0
 ---
 
-# Email Triage
+# SKILL: Email Triage
 
 ## ⚠️ REQUIRED: Use This Skill For
 
 **ALWAYS use `email-triage` skill when:**
-- User says: "process emails", "process tasks", "process LinkedIn messages"
+- User says: "process emails" → Process email tasks from `/Needs_Action/`
+- User says: "process LinkedIn messages" → Process LinkedIn message tasks from `/Needs_Action/`
+- User says: "process file drops" → Process file drop tasks from `/Needs_Action/`
 - Files are in `/Needs_Action/` folder (NOT Inbox)
 - Task type is: `email`, `linkedin_message`, `file_drop`
-- Need to assess priority and create action plan
 
 **DO NOT use:** 
 - `inbox-triage` (that's for Inbox → Needs_Action)
-- `task-planning` (that's auto-created by this skill)
-- `approval-workflow` (use only if threshold exceeded)
+- `task-planning` (that's for complex multi-step tasks only)
+- `approval-workflow` (use ONLY if threshold exceeded)
 
 ## Skill Selection Matrix
 
-| Task Location | Task Type | Skill to Use |
-|--------------|-----------|--------------|
-| `/Inbox/*/` | Any | `inbox-triage` |
-| `/Needs_Action/` | Email | `email-triage` |
-| `/Needs_Action/` | LinkedIn Message | `email-triage` |
-| `/Needs_Action/` | File Drop | `email-triage` |
-| Complex multi-step | Any | `task-planning` (auto) |
-| Needs approval | Any | `approval-workflow` |
+| User Command | Task Location | Task Type | Skill to Use |
+|--------------|--------------|-----------|--------------|
+| "Triage inbox" | `/Inbox/*/` | Any | `inbox-triage` |
+| "Process emails" | `/Needs_Action/` | Email | `email-triage` |
+| "Process LinkedIn messages" | `/Needs_Action/` | LinkedIn Message | `email-triage` |
+| "Process file drops" | `/Needs_Action/` | File Drop | `email-triage` |
+| "Plan this complex task" | `/Needs_Action/` | Multi-step | `task-planning` |
+| "Approve task TASK_ID" | `/Pending_Approval/` | Any | `approval-workflow` |
 
 ---
 
-## Instructions
+## 🎯 PRIMARY MISSION
 
-1. **Read the email task file** from `/Needs_Action`
-   - Extract sender, subject, timestamp, and email content
-   - Note any metadata (Gmail message ID, priority markers)
+> "Read task files from Needs_Action, assess priority, check approval thresholds, then either execute (send email/LinkedIn) OR move to Pending_Approval and trigger approval-workflow skill."
 
-2. **Extract key information**:
-   - Sender identity and relationship (client, team member, vendor, unknown)
-   - Subject line and main topic
-   - Email content and context
-   - Received timestamp and any deadlines mentioned
+---
 
-3. **Analyze for urgency indicators**:
-   - **Keywords**: urgent, asap, deadline, important, critical, emergency, time-sensitive
-   - **Sender importance**: Client requests, boss communications, team dependencies
-   - **Time sensitivity**: Deadlines mentioned (<24 hours = high, 1-7 days = medium, >7 days = low)
-   - **Financial implications**: Payment requests, invoices, contracts
-   - **Blocking issues**: Tasks that block others' work
+## 📋 Priority Assessment Rules
 
-4. **Categorize priority**:
-   - **High**: Urgent keywords + important sender + deadline <24 hours, OR financial matters >$100, OR blocking issues
-   - **Medium**: Important but not urgent + deadline 1-7 days, OR routine client requests
-   - **Low**: Informational only + no deadline + can wait, OR newsletters/updates
+### **HIGH Priority (Do Within 4 Hours)**
 
-5. **Suggest actions**:
-   - **Reply**: Draft response needed (provide template)
-   - **Forward**: Needs another person's attention (specify who)
-   - **Archive**: Informational only, no action needed
-   - **Flag**: Requires follow-up or tracking (set reminder)
-   - **Escalate**: Requires approval or human decision
+**Keywords**: urgent, asap, deadline, critical, emergency, time-sensitive
 
-6. **Create Plan.md** in `/Plans` with:
-   - Priority assessment with justification
-   - Suggested actions with checkboxes
-   - Draft response if reply is needed
-   - Timeline and deadlines
-   - Approval requirements (if any)
+**Sender Types**:
+- Clients with active projects
+- Team members blocked on work
+- Financial institutions (banks, payments)
+- Legal/government communications
 
-7. **Move original task file** to `/Done` after plan is created
+**Examples**:
+- Client asking for deliverable with <24h deadline
+- Team member blocked and can't proceed
+- Payment/invoice issues
+- Security alerts
 
-## Examples
+**Action**: Process immediately, escalate if needed
 
-### Example 1: High Priority Client Email
+---
 
-**Input** (`/Needs_Action/EMAIL_20260307T103000Z_invoice-request.md`):
+### **MEDIUM Priority (Do Within 24 Hours)**
+
+**Keywords**: meeting, call, review, feedback, proposal
+
+**Sender Types**:
+- Regular clients
+- Colleagues
+- Recruiters
+- Service providers
+
+**Examples**:
+- Meeting invitations
+- Project updates
+- Feedback requests
+- Sales inquiries
+
+**Action**: Process within 24 hours during business days
+
+---
+
+### **LOW Priority (Do When Convenient)**
+
+**Keywords**: newsletter, update, notification, FYI
+
+**Sender Types**:
+- Automated systems
+- Newsletters
+- Social media notifications
+- Marketing emails
+
+**Examples**:
+- LinkedIn notifications
+- Newsletter subscriptions
+- Product updates
+- Promotional emails
+
+**Action**: Process when convenient, can batch process
+
+---
+
+## 🔄 Task Processing Workflow WITH SKILL CHAINING
+
+### **Step 1: Read Task File**
 ```markdown
----
-type: email
-source: client@example.com
-timestamp: 2026-03-07T10:30:00Z
-priority: high
-status: pending
-subject: Invoice Request for January
----
-
-## Email Content
-
-**From**: John Client <client@example.com>
-**Subject**: Invoice Request for January
-**Received**: Wed, 7 Mar 2026 10:30:00 +0000
-
-Hi,
-
-Can you send me the invoice for January services? I need it by end of day for our accounting close.
-
-Thanks,
-John Client
+1. Extract metadata (type, priority, timestamp)
+2. Read content (email body, message, file details)
+3. Identify sender/creator
+4. Check for deadlines/urgency
 ```
 
-**Output** (`/Plans/PLAN_EMAIL_20260307T103000Z_invoice-request.md`):
+### **Step 2: Assess Priority**
 ```markdown
----
-objective: Respond to client invoice request
-created: 2026-03-07T10:35:00Z
-related_task: EMAIL_20260307T103000Z_invoice-request.md
-approval_required: false
----
-
-## Priority Assessment
-
-**HIGH** - Client request with same-day deadline
-
-**Justification**:
-- Known client (client@example.com)
-- Explicit deadline: "by end of day"
-- Financial matter (invoice)
-- Blocks client's accounting close
-
-## Action Steps
-
-- [x] Analyze email (completed)
-- [ ] Generate January invoice from accounting system
-- [ ] Review invoice for accuracy
-- [ ] Send invoice via email to client@example.com
-- [ ] Log invoice sent in accounting system
-- [ ] Move task to /Done
-
-**Timeline**: Complete within 4 hours (by 2:30 PM)
-
-## Draft Response
-
-Subject: Re: Invoice Request for January
-
-Hi John,
-
-I'll generate and send the January invoice within the next hour. You'll receive it at this email address.
-
-The invoice will include:
-- Services rendered in January 2026
-- Itemized breakdown
-- Payment terms and instructions
-
-Please let me know if you need any adjustments or have questions.
-
-Best regards
-
-## Notes
-
-- Client has accounting deadline today
-- Invoice should be sent before 2:00 PM to allow review time
-- Follow up if no confirmation received by 3:00 PM
+1. Check for urgent keywords (urgent, asap, deadline)
+2. Evaluate sender importance (client, team, unknown)
+3. Check financial implications
+4. Determine if blocking others
+5. Assign: High/Medium/Low
 ```
 
-### Example 2: Low Priority Newsletter
-
-**Input** (`/Needs_Action/EMAIL_20260307T140000Z_newsletter.md`):
+### **Step 3: Check Approval Thresholds**
 ```markdown
----
-type: email
-source: newsletter@techblog.com
-timestamp: 2026-03-07T14:00:00Z
-priority: low
-status: pending
-subject: Weekly Tech Digest - March 7, 2026
----
+Refer to Company_Handbook.md:
 
-## Email Content
+Financial:
+- >$500 → Requires approval
 
-**From**: Tech Blog <newsletter@techblog.com>
-**Subject**: Weekly Tech Digest - March 7, 2026
-**Received**: Wed, 7 Mar 2026 14:00:00 +0000
+Communications:
+- Client emails → Requires approval (draft first)
+- LinkedIn posts → Requires approval
 
-This week's top stories:
-- New AI developments
-- Cloud computing trends
-- Security updates
-
-[Newsletter content...]
+Data Operations:
+- Delete/Bulk operations → Requires approval
 ```
 
-**Output** (`/Plans/PLAN_EMAIL_20260307T140000Z_newsletter.md`):
+### **Step 4: Take Action WITH HARDCODED SKILL CHAINING**
+
+**If approval IS needed:**
+
 ```markdown
----
-objective: Process newsletter email
-created: 2026-03-07T14:05:00Z
-related_task: EMAIL_20260307T140000Z_newsletter.md
-approval_required: false
----
+## NEXT SKILL TO CALL (HARDCODED)
 
-## Priority Assessment
+**Skill:** `approval-workflow`
 
-**LOW** - Informational newsletter, no action required
-
-**Justification**:
-- Automated newsletter (newsletter@techblog.com)
-- No specific action requested
-- No deadline or urgency
-- Informational content only
-
-## Action Steps
-
-- [x] Analyze email (completed)
-- [ ] Archive email for reference
-- [ ] Move task to /Done
-
-**Timeline**: Process when convenient (no deadline)
-
-## Recommendation
-
-No response needed. Archive for reference. Consider unsubscribing if newsletters are not valuable.
-
-## Notes
-
-- Newsletter arrives weekly
-- Can be processed in batch with other low-priority items
-- No follow-up required
+**Command:**
+```bash
+claude "approve task TASK_ID"
 ```
 
-### Example 3: Medium Priority Team Request
+**What happens:**
+1. Move task to /Pending_Approval/
+2. Add approval request metadata
+3. Wait for user to run: "approve task TASK_ID"
+4. approval-workflow skill will:
+   - Move to /Approved/
+   - Execute (send email/LinkedIn)
+   - Log result
+   - Move to /Done/
+```
 
-**Input** (`/Needs_Action/EMAIL_20260307T093000Z_meeting-request.md`):
+**If approval is NOT needed:**
+
+```bash
+# For LinkedIn messages - Use Playwright MCP
+"Navigate to https://www.linkedin.com/messaging"
+"Click on search box"
+"Type: [Recipient Name]"
+"Click on first result"
+"Click on message input"
+"Type: [DRAFTED_RESPONSE]"
+"Press Enter to send"
+"Take screenshot"
+"Log to /Logs/linkedin_messages.log"
+"Move to /Done/"
+
+# For emails - Use Email MCP
+claude "Send email using MCP: [draft content]"
+"Log to /Logs/email_sent.log"
+"Move to /Done/"
+```
+
+---
+
+## 📝 Email Response Guidelines
+
+### **Tone & Style**
+- **Professional but friendly**
+- **Clear and concise**
+- **Action-oriented**
+- **Free of typos/grammar errors**
+
+### **Structure**
 ```markdown
----
-type: email
-source: teammate@company.com
-timestamp: 2026-03-07T09:30:00Z
-priority: medium
-status: pending
-subject: Quick sync on project timeline
----
-
-## Email Content
-
-**From**: Sarah Teammate <teammate@company.com>
-**Subject**: Quick sync on project timeline
-**Received**: Wed, 7 Mar 2026 09:30:00 +0000
-
-Hi,
-
-Can we schedule a 30-minute call this week to discuss the project timeline? I want to make sure we're aligned on deliverables.
-
-Let me know what works for you.
-
-Thanks,
-Sarah
+1. Greeting (Hi [Name],)
+2. Acknowledge their message (Thanks for reaching out...)
+3. Address their question/concern
+4. Clear next steps or CTA
+5. Professional sign-off (Best regards, [Your name])
 ```
 
-**Output** (`/Plans/PLAN_EMAIL_20260307T093000Z_meeting-request.md`):
+### **What NOT to Do**
+- ❌ Don't make commitments without approval
+- ❌ Don't share sensitive information
+- ❌ Don't respond to spam
+- ❌ Don't use overly casual language with clients
+
+---
+
+## 🔗 HARDCODED SKILL CHAINS
+
+### **After Email-Triage Completes:**
+
+**Scenario 1: Approval Needed**
 ```markdown
+## NEXT SKILL TO CALL (HARDCODED)
+
+**Skill:** `approval-workflow`
+
+**When:** Task exceeds approval thresholds (client email, payment >$500, LinkedIn post)
+
+**Command:**
+```bash
+# Move to Pending_Approval first
+mv AI_Employee_Vault/Needs_Action/TASK_ID.md AI_Employee_Vault/Pending_Approval/
+
+# Then tell user to approve
+"Task moved to Pending_Approval. Run: claude 'approve task TASK_ID'"
+```
+
+**What approval-workflow does:**
+1. Moves task from Pending_Approval → Approved
+2. Executes task (sends email/LinkedIn)
+3. Logs result
+4. Moves to Done/
+```
+
+**Scenario 2: No Approval Needed**
+```markdown
+## EXECUTE DIRECTLY
+
+**For LinkedIn Messages:**
+- Use Playwright MCP to send
+- Log to /Logs/linkedin_messages.log
+- Move to /Done/
+
+**For Emails:**
+- Use Email MCP to send
+- Log to /Logs/email_sent.log
+- Move to /Done/
+
+**NO additional skill needed**
+```
+
 ---
-objective: Schedule meeting with teammate
-created: 2026-03-07T09:35:00Z
-related_task: EMAIL_20260307T093000Z_meeting-request.md
-approval_required: false
+
+## 🚨 Red Flags (Escalate Immediately)
+
+| Issue | Action |
+|-------|--------|
+| Payment request >$500 | Move to Pending_Approval, call approval-workflow |
+| Client complaint | Draft response, move to Pending_Approval, call approval-workflow |
+| Legal/contract language | Flag for manual review |
+| Security alert | Escalate immediately |
+| Phishing/spam suspected | Move to Rejected, log reason |
+
 ---
 
-## Priority Assessment
+## 📊 Quality Checklist
 
-**MEDIUM** - Team coordination, flexible timeline
+Before completing task, verify:
 
-**Justification**:
-- Internal team member (teammate@company.com)
-- Coordination request (not urgent)
-- Flexible deadline ("this week")
-- Important for project alignment
+- [ ] Priority assessed correctly (High/Medium/Low)
+- [ ] Approval threshold checked
+- [ ] **If approval needed:** Moved to Pending_Approval + approval-workflow called
+- [ ] **If no approval:** Task executed (email/LinkedIn sent)
+- [ ] Response tone is appropriate
+- [ ] Message is clear and concise
+- [ ] Call-to-action included (if needed)
+- [ ] No sensitive info exposed
+- [ ] Result logged to /Logs/
+- [ ] Task moved to correct folder
 
-## Action Steps
+---
 
-- [x] Analyze email (completed)
-- [ ] Check calendar availability this week
-- [ ] Propose 2-3 meeting time options
-- [ ] Send response with proposed times
-- [ ] Move task to /Done after response sent
+## 📈 Performance Metrics
 
-**Timeline**: Respond within 24 hours (by tomorrow 9:30 AM)
+| Metric | Target | How to Measure |
+|--------|--------|----------------|
+| Response Time (High) | <4 hours | Timestamp comparison |
+| Response Time (Medium) | <24 hours | Timestamp comparison |
+| Response Time (Low) | <7 days | Timestamp comparison |
+| Approval Accuracy | 100% | No unauthorized actions |
+| Skill Chaining | 100% | approval-workflow called when needed |
+| Task Completion Rate | >95% | Completed/Total tasks |
 
-## Draft Response
+---
 
-Subject: Re: Quick sync on project timeline
-
-Hi Sarah,
-
-Happy to sync on the project timeline. I have availability this week:
-
-- Thursday, March 9: 2:00 PM - 4:00 PM
-- Friday, March 10: 10:00 AM - 12:00 PM, 3:00 PM - 5:00 PM
-
-Let me know which time works best for you, and I'll send a calendar invite.
-
-Looking forward to aligning on deliverables.
-
-Best regards
-
-## Notes
-
-- Team coordination is important but not urgent
-- Flexible scheduling within the week
-- 30-minute meeting should be sufficient
-```
-
-## Decision Tree
-
-Use this decision tree to determine priority:
-
-```
-Is there an explicit deadline?
-├─ Yes, <24 hours → HIGH
-├─ Yes, 1-7 days → MEDIUM
-└─ No deadline → Continue...
-
-Is the sender a client or boss?
-├─ Yes → Increase priority by one level
-└─ No → Continue...
-
-Does it contain urgent keywords?
-├─ Yes → Increase priority by one level
-└─ No → Continue...
-
-Is it financial (>$100)?
-├─ Yes → HIGH
-└─ No → Continue...
-
-Is it informational only?
-├─ Yes → LOW
-└─ No → MEDIUM (default)
-```
-
-## Best Practices
-
-1. **Always check Company_Handbook.md** for approval thresholds and escalation rules
-2. **Be conservative with HIGH priority** - reserve for truly urgent matters
-3. **Provide draft responses** for all reply actions to save time
-4. **Include timelines** in all plans to set expectations
-5. **Flag for approval** when in doubt about financial or sensitive matters
-6. **Consider sender relationship** - clients and bosses get higher priority
-7. **Look for blocking issues** - tasks that block others' work are high priority
-8. **Check for deadlines in email body** - not just subject line
+*Last Updated: 2026-03-14*  
+*Version: 3.0*  
+*Primary Focus: Email & Task Processing with Hardcoded Skill Chaining*
