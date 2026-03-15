@@ -138,6 +138,8 @@ QWEN.md
 .qwen/output-language.md
 .qwen/QWEN.md
 
+# Claude commands (local dev workflow)
+.claude/commands/
 
 # =============================================================================
 # SPEC-DRIVEN DEVELOPMENT - Local Workflow
