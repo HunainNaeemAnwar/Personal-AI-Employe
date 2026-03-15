@@ -227,7 +227,7 @@
 
 ```bash
 # Clone repository
-git clone <your-repo-url>
+git clone https://github.com/HunainNaeemAnwar/Personal-AI-Employe.git
 cd personal-ai-employee
 
 # Create virtual environment
