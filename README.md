@@ -238,7 +238,48 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e .
 ```
 
-### **Step 2: Configure Environment**
+### **Step 2: Configure MCP Servers**
+
+#### **A. Playwright MCP (For LinkedIn Automation)**
+
+```bash
+# Add Playwright MCP via Qwen
+qwen mcp add playwright npx "@playwright/mcp@latest"
+```
+
+**Output:**
+```
+MCP server "playwright" is already configured within user settings.
+MCP server "playwright" updated in user settings.
+```
+
+This enables:
+- ✅ LinkedIn message sending
+- ✅ Browser automation
+- ✅ Screenshot capabilities
+- ✅ Web interaction for tasks
+
+#### **B. Email MCP (For Gmail Sending)**
+
+```bash
+# Add to ~/.config/claude-code/mcp.json:
+{
+  "mcpServers": {
+    "email-sender": {
+      "command": "python",
+      "args": ["/ABSOLUTE/PATH/personal-ai-employee/mcp_servers/email_sender/server.py"],
+      "env": {
+        "GMAIL_CREDENTIALS_PATH": "/home/user/.credentials/gmail-credentials.json",
+        "GMAIL_TOKEN_PATH": "/home/user/.credentials/gmail-token.json"
+      }
+    }
+  }
+}
+```
+
+See `docs/mcp_server_setup.md` for detailed instructions.
+
+### **Step 3: Configure Environment**
 
 ```bash
 # Copy environment template
@@ -258,7 +299,7 @@ LINKEDIN_PASSWORD=your_password
 ORCHESTRATOR_WATCHERS=gmail,filesystem,linkedin
 ```
 
-### **Step 3: Create Vault**
+### **Step 4: Create Vault**
 
 ```bash
 # Automated vault creation
@@ -270,7 +311,7 @@ This creates:
 - `Dashboard.md` (auto-updated activity summary)
 - `Company_Handbook.md` (rules and approval thresholds)
 
-### **Step 4: Setup Gmail OAuth**
+### **Step 5: Setup Gmail OAuth**
 
 See [`docs/gmail_api_setup.md`](docs/gmail_api_setup.md) for detailed instructions.
 
@@ -282,7 +323,7 @@ See [`docs/gmail_api_setup.md`](docs/gmail_api_setup.md) for detailed instructio
 5. Download `gmail-credentials.json`
 6. Run watcher once to generate token
 
-### **Step 5: Run Orchestrator**
+### **Step 6: Run Orchestrator**
 
 ```bash
 # Start all watchers
@@ -295,7 +336,7 @@ python watchers/orchestrator.py
 - Auto-restart on crash enabled
 - State database initialized
 
-### **Step 6: Install Scheduled Tasks (Optional)**
+### **Step 7: Install Scheduled Tasks (Optional)**
 
 ```bash
 # Linux/Mac (cron)
@@ -305,7 +346,7 @@ python -m scheduler.cron_setup setup
 python -m scheduler.task_scheduler_setup setup
 ```
 
-### **Step 7: Process Tasks**
+### **Step 8: Process Tasks**
 
 ```bash
 # Triage inbox (Inbox → Needs_Action)
