@@ -108,7 +108,7 @@ def create_vault(vault_path: Path) -> Tuple[List[Path], List[Path]]:
 
     # Copy template files
     created_files = []
-    templates = ["dashboard", "handbook", "business_goals"]
+    templates = ["dashboard", "company_handbook", "business_goals"]
 
     for template in templates:
         try:
