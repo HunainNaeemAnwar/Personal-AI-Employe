@@ -421,11 +421,13 @@ class LinkedInWatcher(BaseWatcher):
                             message_text = re.sub(r'\.\s*Press return.*', '', message_text)
                             message_text = re.sub(r'\.\s*Open the options.*', '', message_text)
                             message_text = message_text.strip(' .\n\t')
-                            message = message_text[:200] if message_text else "New LinkedIn conversation"
+                            # Keep full message (up to 3000 chars) for complete context
+                            message = message_text[:3000] if message_text else "New LinkedIn conversation"
                         else:
                             message = "New LinkedIn conversation"
                     else:
-                        message = card_text[:200] if card_text else "New LinkedIn conversation"
+                        # Keep full message (up to 3000 chars) for complete context
+                        message = card_text[:3000] if card_text else "New LinkedIn conversation"
 
                     if not name:
                         self.logger.debug(f"Could not find sender name in conversation")
