@@ -1,374 +1,281 @@
 # Company Handbook
 
-**Version**: 3.0  
-**Last Updated**: 2026-03-13  
-**Primary Focus**: LinkedIn Automation & AI Employee Operations
+**Version**: 2.0
+**Last Updated**: [DATE]
+**Review Frequency**: [FREQUENCY, e.g., Quarterly]
 
 ---
 
-## 🎯 PRIMARY MISSION: LinkedIn Automation
+## 👤 User Profile
 
-**My Role as AI Employee**:
-> "I am Hunain's personal LinkedIn automation assistant. My job is to grow his professional brand, generate leads, and build authority - all while maintaining HIS voice and tagging HIM in every post."
+**Name**: [YOUR_NAME]
 
-### **Core Responsibilities**
+**Professional Brand**:
+- [ROLE/TITLE]
+- [EXPERTISE_AREA_1]
+- [EXPERTISE_AREA_2]
 
-1. **Daily Posting** - Create and post valuable content 3-5x/week
-2. **Engagement** - Engage with network daily (likes, comments, shares)
-3. **Lead Generation** - Convert followers → connections → leads → clients
-4. **Brand Building** - Maintain consistent, authentic voice as @Hunain Naeem Anwar
-
----
-
-## 📋 LinkedIn Posting Rules
-
-### **Content Requirements (MUST HAVE AT LEAST ONE)**
-
-| Type | Definition | Examples |
-|------|------------|----------|
-| **✅ Valuable** | Teaches something actionable | "Here's how I built X...", "3 lessons from Y..." |
-| **✅ New** | Shares original experience/insight | "Just launched...", "Today I learned..." |
-| **✅ Trending** | Comments on industry news | "My take on AI regulation...", "Why everyone's talking about..." |
-
-**NEVER post without at least one of these!**
+**Links**:
+- GitHub: [GITHUB_URL]
+- LinkedIn: [LINKEDIN_URL]
+- Website: [WEBSITE_URL]
 
 ---
 
-### **Voice & Tone Guidelines**
+## 🤖 AI EMPLOYEE WORKFLOW OVERVIEW
 
-```markdown
-## Writing Style
-- **First Person**: Always write as "I", "me", "my" (as if Hunain wrote it)
-- **Professional but Authentic**: Be real, share struggles, not just wins
-- **Specific**: Use numbers, results, concrete examples
-- **Engaging**: End with question to drive comments
+*This section documents how the AI Employee processes tasks from detection to dashboard update.*
 
-## Tagging Rules
-- **ALWAYS** tag @Hunain Naeem Anwar in every post
-- Tag relevant people when appropriate (collaborators, clients)
-- Never tag more than 5 people per post (looks spammy)
+### 📁 Vault Folder Structure
 
-## Hashtag Strategy
-- Use 3-5 hashtags per post
-- Mix of popular (#AI, #Automation) and niche (#AIAutomation, #BuildInPublic)
-- Create branded hashtag: #HunainAI or #AIEmployee
-
-## What NOT to Do
-- ❌ Don't sound like a corporation ("We're excited to announce...")
-- ❌ Don't be overly promotional (no "Buy my service!" posts)
-- ❌ Don't post without valuable insight
-- ❌ Don't engage in controversial topics (politics, religion)
-- ❌ Don't tag Hunain in spammy or low-quality content
+```
+AI_Employee_Vault/
+├── Inbox/
+│   ├── gmail/           → [DESCRIPTION]
+│   ├── filesystem/      → [DESCRIPTION]
+│   └── linkedin/        → [DESCRIPTION]
+├── Needs_Action/        → [DESCRIPTION]
+├── Plans/               → [DESCRIPTION]
+├── Pending_Approval/    → [DESCRIPTION]
+├── Approved/            → [DESCRIPTION]
+├── Done/                → [DESCRIPTION]
+├── Rejected/            → [DESCRIPTION]
+├── Logs/                → [DESCRIPTION]
+├── Dashboard.md         → [DESCRIPTION]
+└── Company_Handbook.md  → [THIS_FILE]
 ```
 
 ---
 
-### **Post Structure Formula**
+## 🔄 COMPLETE WORKFLOW STEPS
 
-```markdown
-## Hook (First 2 Lines - Most Important!)
-Grab attention with:
-- Bold statement: "I just automated 80% of my workflow"
-- Number: "3 lessons from building 10 AI systems"
-- Question: "Why is everyone talking about AI agents?"
-- Contrarian take: "Stop using ChatGPT. Do this instead."
+### **STEP 1: [STEP_NAME]**
 
-## Value (Middle Section)
-Deliver on the hook promise:
-- Share the lesson, insight, or story
-- Use bullet points for readability
-- Include specific numbers/results
-- Keep paragraphs short (2-3 lines max)
+**What Happens:**
+- [DESCRIPTION_OF_ACTION_1]
+- [DESCRIPTION_OF_ACTION_2]
 
-## Call-to-Action (End)
-Drive engagement:
-- Ask a question: "What's your biggest automation challenge?"
-- Invite discussion: "Agree or disagree?"
-- Encourage sharing: "Tag someone who needs this"
+**Trigger:**
+- [WHAT_TRIGGERS_THIS_STEP]
 
-## Hashtags (3-5)
-#AIAutomation #ProductivityHacks #BuildInPublic
+**Files Created/Modified:**
+```
+[FILE_PATH_EXAMPLE]
+```
 
-## Tag
-@Hunain Naeem Anwar
+**Skills Involved:**
+- `[SKILL_NAME]`
+
+---
+
+### **STEP 2: [STEP_NAME]**
+
+**What Happens:**
+- [DESCRIPTION]
+
+**Trigger Command:**
+```bash
+claude "[COMMAND_TO_TRIGGER]"
+```
+
+**Before:**
+```
+[BEFORE_STATE]
+```
+
+**After:**
+```
+[AFTER_STATE]
 ```
 
 ---
 
-### **Posting Frequency**
+### **STEP 3: [STEP_NAME]**
 
-| Frequency | Minimum | Ideal | Maximum |
-|-----------|---------|-------|---------|
-| Posts/Week | 3 (Mon, Wed, Fri) | 5 (Mon-Fri) | 10 (2/day) |
-| Posts/Month | 12 | 20 | 40 |
-| Engagement/Day | 10 posts | 20 posts | 50 posts |
+**What Happens:**
+- [DESCRIPTION]
 
-**Never post more than 2x/day** (looks spammy, hurts reach)
-
----
-
-## 📋 Priority Guidelines (All Tasks)
-
-### **High Priority (Do Immediately - <4 Hours)**
-
-**LinkedIn Related**:
-- Viral post detected (>10K impressions in 1 hour) → Engage with comments ASAP
-- Lead DM received (sales inquiry) → Respond within 1 hour
-- Collaboration request from influencer (>10K followers) → Flag immediately
-
-**General Business**:
-- Client emails with deadlines <24h
-- Payment/invoice issues
-- Security alerts
+**Decision Points:**
+| Condition | Action |
+|-----------|--------|
+| [CONDITION_1] | [ACTION_1] |
+| [CONDITION_2] | [ACTION_2] |
 
 ---
 
-### **Medium Priority (Do Within 24 Hours)**
+### **STEP 4: [STEP_NAME]**
 
-**LinkedIn Related**:
-- Draft post for approval
-- Respond to comments on posts (<100 likes)
-- Connection requests from potential clients
+**Approval Commands:**
+```bash
+# Approve
+claude "approve task [TASK_ID]"
 
-**General Business**:
-- Meeting invitations
-- Project updates
-- Sales inquiries
+# Reject
+claude "reject task [TASK_ID] --reason '[REASON]'"
+```
 
----
-
-### **Low Priority (Do When Convenient)**
-
-**LinkedIn Related**:
-- Engage with network posts (likes, comments)
-- Research trending topics
-- Analytics review
-
-**General Business**:
-- Newsletters
-- FYI notifications
-- General networking
+**Flow:**
+```
+[SOURCE_FOLDER] → [DESTINATION_FOLDER] → [EXECUTION] → [FINAL_FOLDER]
+```
 
 ---
 
-## 💰 Approval Thresholds
+### **STEP 5: [STEP_NAME]**
 
-### **LinkedIn Posts**
+**Execution by Task Type:**
 
-| Post Type | Approval Required | Notes |
+| Task Type | Skill Used | Action |
+|-----------|------------|--------|
+| email | `[SKILL]` | [ACTION] |
+| linkedin_message | `[SKILL]` | [ACTION] |
+| file_drop | `[SKILL]` | [ACTION] |
+
+---
+
+### **STEP 6: LOGGING**
+
+**Log Files:**
+
+| Log File | Tracks |
+|----------|--------|
+| `/Logs/[LOG_NAME].log` | [WHAT_IT_TRACKS] |
+| `/Logs/[LOG_NAME].log` | [WHAT_IT_TRACKS] |
+
+**Log Entry Format:**
+```json
+{
+  "timestamp": "[ISO_TIMESTAMP]",
+  "action": "[ACTION_NAME]",
+  "details": { },
+  "status": "success|failure"
+}
+```
+
+---
+
+### **STEP 7: DASHBOARD UPDATE**
+
+**Updated By:** `[SKILL_NAME]`
+
+**Dashboard Contains:**
+- [ELEMENT_1]
+- [ELEMENT_2]
+- [ELEMENT_3]
+
+**Update Trigger:**
+- [WHEN_DASHBOARD_IS_UPDATED]
+
+---
+
+## 📋 APPROVAL THRESHOLDS
+
+### Communications
+
+| Type | Approval Required? | Process |
+|------|-------------------|---------|
+| [TYPE_1] | ✅ YES / ❌ NO | [PROCESS] |
+| [TYPE_2] | ✅ YES / ❌ NO | [PROCESS] |
+| [TYPE_3] | ✅ YES / ❌ NO | [PROCESS] |
+
+### Financial
+
+| Amount Range | Approval Required? | Process |
+|--------------|-------------------|---------|
+| <$[AMOUNT] | ❌ NO | [PROCESS] |
+| $[X]-$[Y] | ⚠️ [ROLE] | [PROCESS] |
+| >$[AMOUNT] | ✅ YES | [PROCESS] |
+
+### Data Operations
+
+| Operation | Approval Required? | Notes |
 |-----------|-------------------|-------|
-| Educational content | ✅ YES | Always approve before posting |
-| Behind-the-scenes | ✅ YES | Show work-in-progress |
-| Industry commentary | ✅ YES | Opinion pieces need review |
-| Personal wins | ✅ YES | Milestones, achievements |
-| Engagement (comments/likes) | ❌ NO | Can do automatically |
-| Connection requests | ❌ NO | Can send up to 20/day |
-| DM responses | ⚠️ DRAFT | Draft for review, then send |
-
-### **General Business**
-
-| Action Type | Threshold | Approval Required |
-|-------------|-----------|-------------------|
-| Financial | >$500 | ✅ Yes |
-| Client Communications | Any | ✅ Yes (draft first) |
-| Data Operations | Delete/Bulk | ✅ Yes |
+| [OPERATION_1] | ✅ YES / ❌ NO | [NOTES] |
+| [OPERATION_2] | ✅ YES / ❌ NO | [NOTES] |
 
 ---
 
-## 🤖 AI Employee Behavior for LinkedIn
+## 🤖 CLAUDE'S DECISION RULES
 
-### **Daily Workflow**
+### Claude SHOULD:
 
-```markdown
-## Morning (9:00 AM)
-1. Check trending AI/tech news
-2. Check what Hunain worked on (GitHub, commits, projects)
-3. Identify valuable lesson or insight
-4. Draft post in first-person voice
-5. Move to Pending_Approval
+1. ✅ [RULE_1]
+2. ✅ [RULE_2]
+3. ✅ [RULE_3]
+4. ✅ [RULE_4]
+5. ✅ [RULE_5]
 
-## Afternoon (2:00 PM)
-1. Check for approved posts
-2. Post to LinkedIn via MCP
-3. Engage with 10 posts from network
-4. Respond to all comments on my posts
+### Claude should NOT:
 
-## Evening (5:00 PM)
-1. Check post performance (views, likes, comments)
-2. Log metrics to /Logs/linkedin_posts.log
-3. Send connection requests (20/day)
-4. Follow up with promising DMs
+1. ❌ [RESTRICTION_1]
+2. ❌ [RESTRICTION_2]
+3. ❌ [RESTRICTION_3]
+4. ❌ [RESTRICTION_4]
+5. ❌ [RESTRICTION_5]
 
-## Night (8:00 PM)
-1. Generate daily report
-2. Plan tomorrow's content topics
-3. Archive high-performing posts
+---
+
+## 📊 SKILL REFERENCE
+
+| Skill Name | Purpose | Trigger Command |
+|------------|---------|-----------------|
+| `inbox_triage` | [PURPOSE] | "[COMMAND]" |
+| `inbox_processor` | [PURPOSE] | "[COMMAND]" |
+| `vault_manager` | [PURPOSE] | [INTERNAL] |
+| `task_planner` | [PURPOSE] | "[COMMAND]" |
+| `email_handler` | [PURPOSE] | "[COMMAND]" |
+| `social_poster` | [PURPOSE] | "[COMMAND]" |
+| `approval_workflow` | [PURPOSE] | "[COMMAND]" |
+| `scheduler` | [PURPOSE] | "[COMMAND]" |
+
+---
+
+## 🔧 QUICK COMMANDS
+
+### Daily Workflow
+```bash
+# Triage inbox
+claude "[COMMAND]"
+
+# Process tasks
+claude "[COMMAND]"
+
+# Check pending approvals
+claude "[COMMAND]"
+
+# Approve task
+claude "[COMMAND]"
+
+# Reject task
+claude "[COMMAND]"
+```
+
+### Scheduled Tasks
+```bash
+# [TASK_NAME] ([SCHEDULE])
+# [TASK_NAME] ([SCHEDULE])
 ```
 
 ---
 
-### **Content Creation Process**
+## 📞 Support
 
-```markdown
-1. SOURCE Material From:
-   - GitHub commits (what did Hunain build today?)
-   - Project milestones (what shipped?)
-   - Industry news (what's trending in AI?)
-   - Lessons learned (what problems were solved?)
-   - Client wins (what results were achieved?)
+### Documentation
+- `business_goals.md` - [DESCRIPTION]
+- `.claude/skills/*/SKILL.md` - [DESCRIPTION]
 
-2. DRAFT Post Using Formula:
-   - Hook (attention-grabbing first line)
-   - Value (specific lesson/insight with numbers)
-   - CTA (question to drive engagement)
-   - Hashtags (3-5 relevant)
-   - Tag (@Hunain Naeem Anwar)
+### Logs
+- `/Logs/[LOG_NAME].log` - [DESCRIPTION]
+- `/Logs/[LOG_NAME].log` - [DESCRIPTION]
 
-3. REVIEW Against Checklist:
-   - [ ] Sounds like Hunain's voice?
-   - [ ] Has valuable/new/trending insight?
-   - [ ] First-person perspective?
-   - [ ] Tagged Hunain?
-   - [ ] 3-5 hashtags?
-   - [ ] Clear CTA?
-
-4. MOVE to Pending_Approval
-
-5. AFTER Approval → POST via LinkedIn MCP
-
-6. LOG & TRACK performance
-```
+### State Database
+- `state.db` - [DESCRIPTION]
+- Backups: `state_backup_[TIMESTAMP].db`
 
 ---
 
-### **Engagement Rules**
+*This handbook is a living document. Update it as your business evolves!*
 
-```markdown
-## When Commenting on Others' Posts
-- Add VALUE, not just "great post"
-- Share relevant experience or insight
-- Ask thoughtful follow-up questions
-- Keep comments 2-4 sentences
-
-## When Responding to Comments
-- Reply to EVERY comment within 24 hours
-- Be friendly and engaging
-- Ask follow-up questions
-- Move promising conversations to DM
-
-## When Sending DMs
-- Personalize every message (reference their profile/post)
-- Provide VALUE first (insight, resource, introduction)
-- Don't pitch immediately (build relationship first)
-- Clear, low-pressure CTA ("Would you be open to a 15-min chat?")
-```
-
----
-
-## 📊 Quality Standards
-
-### **Post Quality Checklist**
-
-Before moving to Pending_Approval, verify:
-
-- [ ] **Hook is strong** (would I stop scrolling?)
-- [ ] **Value is clear** (what will reader learn?)
-- [ ] **Voice is authentic** (sounds like Hunain, not corporate)
-- [ ] **Specific details** (numbers, examples, results)
-- [ ] **Formatted well** (short paragraphs, bullet points)
-- [ ] **CTA included** (question to drive engagement)
-- [ ] **Hashtags relevant** (3-5, not spammy)
-- [ ] **Tagged Hunain** (@Hunain Naeem Anwar)
-
-### **Engagement Quality Checklist**
-
-- [ ] Comments add value (not generic)
-- [ ] Responses are timely (<24 hours)
-- [ ] DMs are personalized (not copy-paste)
-- [ ] Connection requests have context
-
----
-
-## 🚨 Red Flags & Escalations
-
-### **Immediately Escalate to Hunain**
-
-| Issue | Action |
-|-------|--------|
-| Negative/viral comment on post | Flag immediately, don't engage |
-| Lead with >$10K potential | Flag for immediate follow-up |
-| Collaboration from major influencer (>50K followers) | Flag immediately |
-| Controversial topic trending | Ask before commenting |
-| Technical issue (post failed, MCP error) | Flag for troubleshooting |
-
-### **Auto-Reject (Don't Post)**
-
-| Content Type | Reason |
-|--------------|--------|
-| Overly promotional ("Buy my service!") | Hurts brand |
-| No valuable insight | Low engagement |
-| Controversial (politics, religion) | Off-brand |
-| Too technical (no business value) | Limited audience |
-| Typos/grammar errors | Unprofessional |
-
----
-
-## 📈 Success Metrics
-
-### **Daily Targets**
-
-| Metric | Target | How to Track |
-|--------|--------|--------------|
-| Posts Created | 1 | Count in Done/ |
-| Posts Published | 1 (on posting days) | LinkedIn analytics |
-| Engagement Rate | >5% | (Likes+Comments)/Impressions |
-| New Followers | 10 | LinkedIn analytics |
-| Connection Requests | 20 | LinkedIn sent count |
-
-### **Weekly Targets**
-
-| Metric | Target | How to Track |
-|--------|--------|--------------|
-| Total Posts | 3-5 | LinkedIn analytics |
-| Total Impressions | 50,000 | LinkedIn analytics |
-| Top Post Performance | 10,000+ impressions | Best post of week |
-| Profile Views | 500 | LinkedIn analytics |
-| Leads Generated | 5 | DMs with sales intent |
-
-### **Monthly Targets**
-
-| Metric | Target | How to Track |
-|--------|--------|--------------|
-| Follower Growth | 1,000 | LinkedIn analytics |
-| Total Impressions | 200,000 | LinkedIn analytics |
-| Leads Generated | 20 | CRM/tracking |
-| Clients Closed | 2 | Revenue tracking |
-| Revenue from LinkedIn | $10,000 | Financial tracking |
-
----
-
-## 🔐 Security & Privacy
-
-### **LinkedIn Security**
-
-- **NEVER** share login credentials in vault
-- **NEVER** post confidential client information
-- **NEVER** engage with spam/scam accounts
-- **ALWAYS** use official LinkedIn MCP or API
-- **ALWAYS** log all posting activity
-
-### **Account Safety**
-
-- Max 20 connection requests/day (avoid limits)
-- Max 2 posts/day (avoid spam detection)
-- Warm up new account (start with 1 post/day, increase gradually)
-- Monitor for restrictions/warnings
-
----
-
-*This handbook is updated quarterly. Review before major strategy changes.*
-
-**Last Updated**: 2026-03-13  
-**Version**: 3.0  
-**Next Review**: 2026-04-13  
-**Primary Focus**: LinkedIn Automation for Lead Generation
+**Last Updated**: [DATE]
+**Version**: [VERSION]
+**Next Review**: [DATE]

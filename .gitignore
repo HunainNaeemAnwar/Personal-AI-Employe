@@ -1,85 +1,192 @@
-# Python-generated files
+# =============================================================================
+# COMPREHENSIVE .gitignore - Personal AI Employee (Silver Tier)
+# =============================================================================
+# 
+# IMPORTANT: Vault and Dropbox are USER-CREATED via vault_setup scripts.
+# They are NOT included in the repository. Users create them on their own.
+#
+# =============================================================================
+
+# =============================================================================
+# VAULT & DROPBOX - IGNORE COMPLETELY (User-Created)
+# =============================================================================
+AI_Employee_Vault/
+AI_Employee_Dropbox/
+
+# =============================================================================
+# CREDENTIALS & SECRETS - NEVER COMMIT
+# =============================================================================
+.env
+.env.local
+.env.*.local
+.credentials/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# =============================================================================
+# PYTHON - Generated Files
+# =============================================================================
 __pycache__/
-*.py[oc]
+*.py[cod]
+*$py.class
+*.so
 build/
 dist/
 wheels/
-*.egg-info
+*.egg-info/
+*.egg
 
 # Virtual environments
-.venv
+.venv/
+venv/
+ENV/
+env/
 
-# Environment variables and credentials
-.env
-.credentials/
+# Python distribution
+.Python
 
-# IDE
+# =============================================================================
+# NODE.JS - Dependencies & Build
+# =============================================================================
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# =============================================================================
+# IDE & EDITORS
+# =============================================================================
 .vscode/
 .idea/
 *.swp
 *.swo
+*.swn
+*~
+.project
+.pydevproject
+.settings/
 
-# OS
+# =============================================================================
+# OPERATING SYSTEM
+# =============================================================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# Project-specific
+# =============================================================================
+# PROJECT-SPECIFIC - Build & Lock Files
+# =============================================================================
 uv.lock
 
-# Obsidian
+# =============================================================================
+# OBSIDIAN - App Config (Not Vault Data)
+# =============================================================================
 .obsidian/
 
-# ========================================
-# AI Employee Vault - Runtime Files
-# ========================================
+# =============================================================================
+# ROOT LEVEL LOGS & DATABASES
+# =============================================================================
+*.log
+!README.log
+logs/
+Logs/
 
-# Logs and heartbeats (runtime-generated)
-AI_Employee_Vault/Logs/*.json
-AI_Employee_Vault/Logs/*.log
-AI_Employee_Vault/Logs/*_heartbeat.txt
-AI_Employee_Vault/Logs/benchmark_results.json
-
-# User profile (personal data)
-AI_Employee_Vault/user_profile.md
-
-# Database (runtime state)
-AI_Employee_Vault/state.db
-AI_Employee_Vault/state.db-journal
+*.db
 *.db-journal
+*.db-shm
+*.db-wal
+state_backup_*.db
+state_corrupted_*.db
 
-# Browser sessions
-AI_Employee_Vault/.linkedin_session/
+# =============================================================================
+# PLAYWRIGHT & SELENIUM
+# =============================================================================
+.playwright-mcp/
+.playwright/
+selenium.log
 
-# Task files (created during runtime)
-AI_Employee_Vault/Needs_Action/*.md
-AI_Employee_Vault/Done/*.md
-AI_Employee_Vault/Pending_Approval/*.md
-AI_Employee_Vault/Rejected/*.md
-AI_Employee_Vault/Approved/*.md
-AI_Employee_Vault/Plans/*.md
-AI_Employee_Vault/Summaries/*.md
-AI_Employee_Vault/Briefings/*.md
-AI_Employee_Vault/Reviews/*.md
-AI_Employee_Vault/Reports/*.md
+# =============================================================================
+# HEARTBEAT & LOCK FILES
+# =============================================================================
+*_heartbeat.txt
+*.pid
+*.lock
+*.lockfile
+lock_files/
+/tmp/ai_employee_locks/
 
-# Dropbox watch folder (test files)
-AI_Employee_Dropbox/*.txt
-AI_Employee_Dropbox/*.pdf
-AI_Employee_Dropbox/*.docx
-AI_Employee_Dropbox/*.xlsx
+# =============================================================================
+# MCP SERVERS - Build Artifacts
+# =============================================================================
+mcp_servers/**/__pycache__/
+mcp_servers/**/*.pyc
+mcp_servers/**/dist/
+mcp_servers/**/build/
 
-# MCP server build artifacts
-mcp_servers/email_sender/__pycache__/
-mcp_servers/email_sender/*.pyc
-
-# Node.js
-node_modules/
-
-# Qwen agent config
+# =============================================================================
+# QWEN / CLAUDE AGENT CONFIG
+# =============================================================================
 QWEN.md
+.qwen/skills/
+.qwen/output-language.md
+.qwen/QWEN.md
 
-# Qwen Code config
 
-# Qwen config (except skills)
-.qwen/*
-!.qwen/skills/
+# =============================================================================
+# SPEC-DRIVEN DEVELOPMENT - Local Workflow
+# =============================================================================
+.specify/
+history/
+specs/
+
+# =============================================================================
+# DOCUMENTATION - Local Only (Not Core Project Docs)
+# =============================================================================
+
+# Implementation summaries (temporary)
+*_SUMMARY.md
+IMPLEMENTATION_*.md
+FINAL_*.md
+VALIDATION_*.md
+USER_GUIDE.md
+PROJECT_REFRENCE.md
+ProjectRefrence.pdf
+
+# Temporary notes
+*.tmp
+*.temp
+notes/
+temp/
+
+# =============================================================================
+# BACKUP & ARCHIVE FILES
+# =============================================================================
+*.bak
+*.backup
+*.old
+*.orig
+*.orig.*
+backup/
+backups/
+archive/
+
+# =============================================================================
+# TEST & FIXTURE FILES - Runtime Created
+# =============================================================================
+tests/fixtures/*.json
+tests/fixtures/*.md
+test_output/
+coverage/
+.coverage
+htmlcov/
+
+# =============================================================================
+# END OF .gitignore
+# =============================================================================

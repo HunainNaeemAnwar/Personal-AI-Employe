@@ -1,227 +1,281 @@
 # Company Handbook
 
-**Version**: 1.0  
-**Last Updated**: [DATE]  
-**Review Frequency**: Quarterly or as needed
+**Version**: 2.0
+**Last Updated**: [DATE]
+**Review Frequency**: [FREQUENCY, e.g., Quarterly]
 
 ---
 
 ## 👤 User Profile
 
-**Name**: [Your Name]
+**Name**: [YOUR_NAME]
 
 **Professional Brand**:
-- [Your role/title]
-- [Your expertise area 1]
-- [Your expertise area 2]
+- [ROLE/TITLE]
+- [EXPERTISE_AREA_1]
+- [EXPERTISE_AREA_2]
 
 **Links**:
-- GitHub: [Your GitHub URL]
-- LinkedIn: [Your LinkedIn URL]
-- Website: [Your Website URL]
+- GitHub: [GITHUB_URL]
+- LinkedIn: [LINKEDIN_URL]
+- Website: [WEBSITE_URL]
 
 ---
 
-## 📋 Rules of Engagement
+## 🤖 AI EMPLOYEE WORKFLOW OVERVIEW
 
-### Communication Standards
+*This section documents how the AI Employee processes tasks from detection to dashboard update.*
 
-**Tone**: [e.g., Professional, friendly, concise]
+### 📁 Vault Folder Structure
 
-**Response Times**:
-- High Priority: <[X] hours
-- Medium Priority: <[X] hours
-- Low Priority: <[X] days
-
-**Email Guidelines**:
-- [Guideline 1]
-- [Guideline 2]
-- [Guideline 3]
-
-**LinkedIn Guidelines**:
-- [Guideline 1]
-- [Guideline 2]
-- [Guideline 3]
-
----
-
-## 🎯 Priority Guidelines
-
-### High Priority (Process Immediately)
-
-**Keywords**: [keyword1, keyword2, keyword3]
-
-**Sender Types**:
-- [Type 1]
-- [Type 2]
-- [Type 3]
-
-**Examples**:
-- [Example 1]
-- [Example 2]
-
-**Action**: [What to do]
+```
+AI_Employee_Vault/
+├── Inbox/
+│   ├── gmail/           → [DESCRIPTION]
+│   ├── filesystem/      → [DESCRIPTION]
+│   └── linkedin/        → [DESCRIPTION]
+├── Needs_Action/        → [DESCRIPTION]
+├── Plans/               → [DESCRIPTION]
+├── Pending_Approval/    → [DESCRIPTION]
+├── Approved/            → [DESCRIPTION]
+├── Done/                → [DESCRIPTION]
+├── Rejected/            → [DESCRIPTION]
+├── Logs/                → [DESCRIPTION]
+├── Dashboard.md         → [DESCRIPTION]
+└── Company_Handbook.md  → [THIS_FILE]
+```
 
 ---
 
-### Medium Priority (Process Within [X] Hours)
+## 🔄 COMPLETE WORKFLOW STEPS
 
-**Keywords**: [keyword1, keyword2]
+### **STEP 1: [STEP_NAME]**
 
-**Sender Types**:
-- [Type 1]
-- [Type 2]
+**What Happens:**
+- [DESCRIPTION_OF_ACTION_1]
+- [DESCRIPTION_OF_ACTION_2]
 
-**Examples**:
-- [Example 1]
-- [Example 2]
+**Trigger:**
+- [WHAT_TRIGGERS_THIS_STEP]
 
-**Action**: [What to do]
+**Files Created/Modified:**
+```
+[FILE_PATH_EXAMPLE]
+```
 
----
-
-### Low Priority (Process When Convenient)
-
-**Keywords**: [keyword1, keyword2]
-
-**Sender Types**:
-- [Type 1]
-- [Type 2]
-
-**Examples**:
-- [Example 1]
-- [Example 2]
-
-**Action**: [What to do]
+**Skills Involved:**
+- `[SKILL_NAME]`
 
 ---
 
-## 💰 Approval Thresholds
+### **STEP 2: [STEP_NAME]**
 
-### Financial Transactions
+**What Happens:**
+- [DESCRIPTION]
 
-| Amount | Approval Required | Notes |
-|--------|-------------------|-------|
-| <$[X] | ❌ No | Auto-approve |
-| $[X]-$[Y] | ⚠️ Manager | Requires review |
-| >$[Y] | ✅ Executive | Requires explicit approval |
+**Trigger Command:**
+```bash
+claude "[COMMAND_TO_TRIGGER]"
+```
+
+**Before:**
+```
+[BEFORE_STATE]
+```
+
+**After:**
+```
+[AFTER_STATE]
+```
 
 ---
+
+### **STEP 3: [STEP_NAME]**
+
+**What Happens:**
+- [DESCRIPTION]
+
+**Decision Points:**
+| Condition | Action |
+|-----------|--------|
+| [CONDITION_1] | [ACTION_1] |
+| [CONDITION_2] | [ACTION_2] |
+
+---
+
+### **STEP 4: [STEP_NAME]**
+
+**Approval Commands:**
+```bash
+# Approve
+claude "approve task [TASK_ID]"
+
+# Reject
+claude "reject task [TASK_ID] --reason '[REASON]'"
+```
+
+**Flow:**
+```
+[SOURCE_FOLDER] → [DESTINATION_FOLDER] → [EXECUTION] → [FINAL_FOLDER]
+```
+
+---
+
+### **STEP 5: [STEP_NAME]**
+
+**Execution by Task Type:**
+
+| Task Type | Skill Used | Action |
+|-----------|------------|--------|
+| email | `[SKILL]` | [ACTION] |
+| linkedin_message | `[SKILL]` | [ACTION] |
+| file_drop | `[SKILL]` | [ACTION] |
+
+---
+
+### **STEP 6: LOGGING**
+
+**Log Files:**
+
+| Log File | Tracks |
+|----------|--------|
+| `/Logs/[LOG_NAME].log` | [WHAT_IT_TRACKS] |
+| `/Logs/[LOG_NAME].log` | [WHAT_IT_TRACKS] |
+
+**Log Entry Format:**
+```json
+{
+  "timestamp": "[ISO_TIMESTAMP]",
+  "action": "[ACTION_NAME]",
+  "details": { },
+  "status": "success|failure"
+}
+```
+
+---
+
+### **STEP 7: DASHBOARD UPDATE**
+
+**Updated By:** `[SKILL_NAME]`
+
+**Dashboard Contains:**
+- [ELEMENT_1]
+- [ELEMENT_2]
+- [ELEMENT_3]
+
+**Update Trigger:**
+- [WHEN_DASHBOARD_IS_UPDATED]
+
+---
+
+## 📋 APPROVAL THRESHOLDS
 
 ### Communications
 
-| Type | Approval Required | Notes |
-|------|-------------------|-------|
-| Client emails | ✅ Yes | Draft for review before sending |
-| Internal emails | ❌ No | Send directly |
-| LinkedIn messages | ❌ No | Send directly |
-| LinkedIn posts | ✅ Yes | Requires approval before posting |
+| Type | Approval Required? | Process |
+|------|-------------------|---------|
+| [TYPE_1] | ✅ YES / ❌ NO | [PROCESS] |
+| [TYPE_2] | ✅ YES / ❌ NO | [PROCESS] |
+| [TYPE_3] | ✅ YES / ❌ NO | [PROCESS] |
 
----
+### Financial
+
+| Amount Range | Approval Required? | Process |
+|--------------|-------------------|---------|
+| <$[AMOUNT] | ❌ NO | [PROCESS] |
+| $[X]-$[Y] | ⚠️ [ROLE] | [PROCESS] |
+| >$[AMOUNT] | ✅ YES | [PROCESS] |
 
 ### Data Operations
 
-| Operation | Approval Required | Notes |
+| Operation | Approval Required? | Notes |
 |-----------|-------------------|-------|
-| Single record update | ❌ No | Auto-approve |
-| Bulk update (>[X] items) | ✅ Yes | Requires review |
-| Data export | ✅ Yes | Security review needed |
-| Data deletion | ✅ Yes | Irreversible action |
+| [OPERATION_1] | ✅ YES / ❌ NO | [NOTES] |
+| [OPERATION_2] | ✅ YES / ❌ NO | [NOTES] |
 
 ---
 
-## 🔄 Task Processing Workflow
+## 🤖 CLAUDE'S DECISION RULES
 
-### Step 1: Detection
-```
-Watcher detects new item → Creates file in /Inbox/<source>/
-```
+### Claude SHOULD:
 
-### Step 2: Triage
-```
-/Inbox/ → Claude triage → /Needs_Action/ with priority
-```
+1. ✅ [RULE_1]
+2. ✅ [RULE_2]
+3. ✅ [RULE_3]
+4. ✅ [RULE_4]
+5. ✅ [RULE_5]
 
-### Step 3: Processing
-```
-/Needs_Action/ → Claude + Skill → Action taken
-```
+### Claude should NOT:
 
-### Step 4: Approval (If Required)
-```
-Exceeds threshold → /Pending_Approval/ → You approve/reject
-```
-
-### Step 5: Execution
-```
-Approved → Execute → Log → /Done/
-```
+1. ❌ [RESTRICTION_1]
+2. ❌ [RESTRICTION_2]
+3. ❌ [RESTRICTION_3]
+4. ❌ [RESTRICTION_4]
+5. ❌ [RESTRICTION_5]
 
 ---
 
-## 🤖 AI Employee Behavior
+## 📊 SKILL REFERENCE
 
-### Decision Making
-
-**Claude should**:
-1. [Guideline 1]
-2. [Guideline 2]
-3. [Guideline 3]
-
-**Claude should NOT**:
-1. [Restriction 1]
-2. [Restriction 2]
-3. [Restriction 3]
-
----
-
-## 📊 Quality Standards
-
-### Response Quality
-
-**All responses should be**:
-- [Quality 1]
-- [Quality 2]
-- [Quality 3]
-
-**Review Checklist**:
-- [ ] [Check 1]
-- [ ] [Check 2]
-- [ ] [Check 3]
+| Skill Name | Purpose | Trigger Command |
+|------------|---------|-----------------|
+| `inbox_triage` | [PURPOSE] | "[COMMAND]" |
+| `inbox_processor` | [PURPOSE] | "[COMMAND]" |
+| `vault_manager` | [PURPOSE] | [INTERNAL] |
+| `task_planner` | [PURPOSE] | "[COMMAND]" |
+| `email_handler` | [PURPOSE] | "[COMMAND]" |
+| `social_poster` | [PURPOSE] | "[COMMAND]" |
+| `approval_workflow` | [PURPOSE] | "[COMMAND]" |
+| `scheduler` | [PURPOSE] | "[COMMAND]" |
 
 ---
 
-## 🔐 Security & Privacy
+## 🔧 QUICK COMMANDS
 
-### Credential Management
+### Daily Workflow
+```bash
+# Triage inbox
+claude "[COMMAND]"
 
-**NEVER**:
-- [Restriction 1]
-- [Restriction 2]
-- [Restriction 3]
+# Process tasks
+claude "[COMMAND]"
 
-**ALWAYS**:
-- [Practice 1]
-- [Practice 2]
-- [Practice 3]
+# Check pending approvals
+claude "[COMMAND]"
+
+# Approve task
+claude "[COMMAND]"
+
+# Reject task
+claude "[COMMAND]"
+```
+
+### Scheduled Tasks
+```bash
+# [TASK_NAME] ([SCHEDULE])
+# [TASK_NAME] ([SCHEDULE])
+```
 
 ---
 
 ## 📞 Support
 
 ### Documentation
-- `business_goals.md` - Your strategic objectives
-- `.claude/skills/*/SKILL.md` - AI agent skill documentation
+- `business_goals.md` - [DESCRIPTION]
+- `.claude/skills/*/SKILL.md` - [DESCRIPTION]
 
 ### Logs
-- `/Logs/orchestrator.log` - System health
-- `/Logs/*_watcher.log` - Watcher activity
-- `/Logs/email_sent.log` - Sent emails
+- `/Logs/[LOG_NAME].log` - [DESCRIPTION]
+- `/Logs/[LOG_NAME].log` - [DESCRIPTION]
+
+### State Database
+- `state.db` - [DESCRIPTION]
+- Backups: `state_backup_[TIMESTAMP].db`
 
 ---
 
 *This handbook is a living document. Update it as your business evolves!*
 
-**Last Updated**: [DATE]  
-**Version**: 1.0  
+**Last Updated**: [DATE]
+**Version**: [VERSION]
 **Next Review**: [DATE]
