@@ -14,7 +14,7 @@ from pathlib import Path
 from shutil import copy2
 from typing import List, Tuple
 
-from vault_setup.folder_structure import create_vault_folders, validate_vault_structure
+from vault_setup.folder_structure import create_vault_folders, create_watch_directory, validate_vault_structure
 
 
 def validate_vault_path(vault_path: Path) -> Tuple[bool, str]:
@@ -88,14 +88,14 @@ def copy_template_file(template_name: str, vault_path: Path) -> Path:
     return dest_file
 
 
-def create_vault(vault_path: Path) -> Tuple[List[Path], List[Path]]:
+def create_vault(vault_path: Path) -> Tuple[List[Path], List[Path], Path]:
     """Create complete vault structure with folders and configuration files.
 
     Args:
         vault_path: Path to the vault directory
 
     Returns:
-        Tuple of (created_folders, created_files)
+        Tuple of (created_folders, created_files, watch_directory)
 
     Raises:
         OSError: If vault creation fails
@@ -105,6 +105,9 @@ def create_vault(vault_path: Path) -> Tuple[List[Path], List[Path]]:
 
     # Create folder structure
     created_folders = create_vault_folders(vault_path)
+
+    # Create watch directory (AI_Employee_Dropbox)
+    watch_directory = create_watch_directory(vault_path)
 
     # Copy template files
     created_files = []
@@ -117,11 +120,11 @@ def create_vault(vault_path: Path) -> Tuple[List[Path], List[Path]]:
         except FileNotFoundError as e:
             print(f"⚠️  Warning: Could not copy template: {e}")
 
-    return created_folders, created_files
+    return created_folders, created_files, watch_directory
 
 
 def print_success_summary(
-    vault_path: Path, created_folders: List[Path], created_files: List[Path]
+    vault_path: Path, created_folders: List[Path], created_files: List[Path], watch_directory: Path
 ) -> None:
     """Print success confirmation with details of created items.
 
@@ -129,6 +132,7 @@ def print_success_summary(
         vault_path: Path to the vault directory
         created_folders: List of created folder paths
         created_files: List of created file paths
+        watch_directory: Path to created watch directory
     """
     print("\n" + "=" * 70)
     print("✅ Vault Created Successfully!")
@@ -142,6 +146,9 @@ def print_success_summary(
     for file in sorted(created_files):
         print(f"   • {file.name}")
 
+    print(f"\n📦 Created watch directory:")
+    print(f"   • {watch_directory.name}/ (drop files here for processing)")
+
     print("\n" + "=" * 70)
     print("Next Steps:")
     print("=" * 70)
@@ -150,6 +157,7 @@ def print_success_summary(
     print("\n2. Configure your environment:")
     print("   • Copy .env.example to .env")
     print(f"   • Set VAULT_PATH={vault_path}")
+    print(f"   • Set WATCH_DIRECTORY={watch_directory}")
     print("   • Configure your chosen Watcher (Gmail or File System)")
     print("\n3. Start your Watcher:")
     print("   • Gmail: python watchers/gmail_watcher.py")
@@ -199,7 +207,7 @@ Examples:
 
     # Create vault
     try:
-        created_folders, created_files = create_vault(vault_path)
+        created_folders, created_files, watch_directory = create_vault(vault_path)
     except OSError as e:
         print(f"❌ Error creating vault: {e}", file=sys.stderr)
         return 1
@@ -210,7 +218,7 @@ Examples:
         return 1
 
     # Print success summary
-    print_success_summary(vault_path, created_folders, created_files)
+    print_success_summary(vault_path, created_folders, created_files, watch_directory)
 
     return 0
 
