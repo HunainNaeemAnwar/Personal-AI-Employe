@@ -21,8 +21,8 @@ class WatcherConfig:
         # Vault configuration
         self.vault_path = self._get_required("VAULT_PATH")
 
-        # Watcher type selection
-        self.watcher_type = self._get_required("WATCHER_TYPE")
+        # Watcher type selection (Bronze tier: single watcher mode)
+        self.watcher_type = os.getenv("WATCHER_TYPE", "orchestrator")
 
         # Gmail Watcher configuration
         self.gmail_credentials_path = os.getenv("GMAIL_CREDENTIALS_PATH")
@@ -32,6 +32,30 @@ class WatcherConfig:
         # File System Watcher configuration
         self.watch_directory = os.getenv("WATCH_DIRECTORY")
         self.file_extensions = os.getenv("FILE_EXTENSIONS", "*")
+
+        # LinkedIn Watcher configuration (Silver tier)
+        self.linkedin_username = os.getenv("LINKEDIN_USERNAME")
+        self.linkedin_password = os.getenv("LINKEDIN_PASSWORD")
+        self.linkedin_access_token = os.getenv("LINKEDIN_ACCESS_TOKEN")
+        self.linkedin_polling_interval = int(os.getenv("LINKEDIN_POLLING_INTERVAL", "300"))
+
+        # State Management configuration (Silver tier)
+        self.state_db_path = os.getenv("STATE_DB_PATH", "state.db")
+        self.state_backup_interval = int(os.getenv("STATE_BACKUP_INTERVAL", "86400"))
+        self.state_health_check_interval = int(os.getenv("STATE_HEALTH_CHECK_INTERVAL", "300"))
+
+        # Orchestrator configuration (Silver tier)
+        self.orchestrator_health_check_interval = int(os.getenv("ORCHESTRATOR_HEALTH_CHECK_INTERVAL", "60"))
+        self.orchestrator_restart_delay = int(os.getenv("ORCHESTRATOR_RESTART_DELAY", "5"))
+        self.orchestrator_log_path = os.getenv("ORCHESTRATOR_LOG_PATH", str(Path(self.vault_path) / "Logs" / "orchestrator.log"))
+
+        # Orchestrator watcher list (Silver tier)
+        # Comma-separated list of watchers to run: "gmail,filesystem,linkedin"
+        self.orchestrator_watchers = os.getenv("ORCHESTRATOR_WATCHERS", "gmail,filesystem").split(",")
+
+        # Approval Workflow configuration (Silver tier)
+        self.approval_reminder_interval = int(os.getenv("APPROVAL_REMINDER_INTERVAL", "86400"))
+        self.approval_log_path = os.getenv("APPROVAL_LOG_PATH", str(Path(self.vault_path) / "Logs" / "approvals.log"))
 
     def _get_required(self, key: str) -> str:
         """Get required environment variable or raise error.

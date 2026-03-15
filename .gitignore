@@ -1,31 +1,194 @@
-# Python-generated files
+# =============================================================================
+# COMPREHENSIVE .gitignore - Personal AI Employee (Silver Tier)
+# =============================================================================
+# 
+# IMPORTANT: Vault and Dropbox are USER-CREATED via vault_setup scripts.
+# They are NOT included in the repository. Users create them on their own.
+#
+# =============================================================================
+
+# =============================================================================
+# VAULT & DROPBOX - IGNORE COMPLETELY (User-Created)
+# =============================================================================
+AI_Employee_Vault/
+AI_Employee_Dropbox/
+
+# =============================================================================
+# CREDENTIALS & SECRETS - NEVER COMMIT
+# =============================================================================
+.env
+.env.local
+.env.*.local
+.credentials/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# =============================================================================
+# PYTHON - Generated Files
+# =============================================================================
 __pycache__/
-*.py[oc]
+*.py[cod]
+*$py.class
+*.so
 build/
 dist/
 wheels/
-*.egg-info
+*.egg-info/
+*.egg
 
 # Virtual environments
-.venv
+.venv/
+venv/
+ENV/
+env/
 
-# Environment variables and credentials
-.env
-.credentials/
-*.log
+# Python distribution
+.Python
 
-# IDE
+# =============================================================================
+# NODE.JS - Dependencies & Build
+# =============================================================================
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# =============================================================================
+# IDE & EDITORS
+# =============================================================================
 .vscode/
 .idea/
 *.swp
 *.swo
+*.swn
+*~
+.project
+.pydevproject
+.settings/
 
-# OS
+# =============================================================================
+# OPERATING SYSTEM
+# =============================================================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# Project-specific
+# =============================================================================
+# PROJECT-SPECIFIC - Build & Lock Files
+# =============================================================================
 uv.lock
 
-# Obsidian
+# =============================================================================
+# OBSIDIAN - App Config (Not Vault Data)
+# =============================================================================
 .obsidian/
+
+# =============================================================================
+# ROOT LEVEL LOGS & DATABASES
+# =============================================================================
+*.log
+!README.log
+logs/
+Logs/
+
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+state_backup_*.db
+state_corrupted_*.db
+
+# =============================================================================
+# PLAYWRIGHT & SELENIUM
+# =============================================================================
+.playwright-mcp/
+.playwright/
+selenium.log
+
+# =============================================================================
+# HEARTBEAT & LOCK FILES
+# =============================================================================
+*_heartbeat.txt
+*.pid
+*.lock
+*.lockfile
+lock_files/
+/tmp/ai_employee_locks/
+
+# =============================================================================
+# MCP SERVERS - Build Artifacts
+# =============================================================================
+mcp_servers/**/__pycache__/
+mcp_servers/**/*.pyc
+mcp_servers/**/dist/
+mcp_servers/**/build/
+
+# =============================================================================
+# QWEN / CLAUDE AGENT CONFIG
+# =============================================================================
+QWEN.md
+.qwen/skills/
+.qwen/output-language.md
+.qwen/QWEN.md
+
+# Claude commands (local dev workflow)
+.claude/commands/
+
+# =============================================================================
+# SPEC-DRIVEN DEVELOPMENT - Local Workflow
+# =============================================================================
+.specify/
+history/
+specs/
+
+# =============================================================================
+# DOCUMENTATION - Local Only (Not Core Project Docs)
+# =============================================================================
+
+# Implementation summaries (temporary)
+*_SUMMARY.md
+IMPLEMENTATION_*.md
+FINAL_*.md
+VALIDATION_*.md
+USER_GUIDE.md
+PROJECT_REFRENCE.md
+ProjectRefrence.pdf
+
+# Temporary notes
+*.tmp
+*.temp
+notes/
+temp/
+
+# =============================================================================
+# BACKUP & ARCHIVE FILES
+# =============================================================================
+*.bak
+*.backup
+*.old
+*.orig
+*.orig.*
+backup/
+backups/
+archive/
+
+# =============================================================================
+# TEST & FIXTURE FILES - Runtime Created
+# =============================================================================
+tests/fixtures/*.json
+tests/fixtures/*.md
+test_output/
+coverage/
+.coverage
+htmlcov/
+
+# =============================================================================
+# END OF .gitignore
+# =============================================================================

@@ -6,7 +6,7 @@ new files and creates task files in the Obsidian vault.
 
 import re
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -97,6 +97,7 @@ class FilesystemWatcher(BaseWatcher):
         watch_directory: str,
         file_extensions: str = "*",
         check_interval: int = 5,
+        state_db_path: str = "state.db",
     ):
         """Initialize File System Watcher.
 
@@ -105,11 +106,12 @@ class FilesystemWatcher(BaseWatcher):
             watch_directory: Path to directory to monitor
             file_extensions: Comma-separated extensions or "*" for all (default: "*")
             check_interval: Seconds between checks (default: 5)
+            state_db_path: Path to SQLite state database (default: state.db)
 
         Raises:
             ValueError: If watch directory doesn't exist
         """
-        super().__init__(vault_path, check_interval)
+        super().__init__(vault_path, check_interval, state_db_path)
 
         self.watch_directory = Path(watch_directory)
         if not self.watch_directory.exists():
@@ -205,7 +207,7 @@ class FilesystemWatcher(BaseWatcher):
             # Get file metadata
             file_stat = file_path.stat()
             file_size = file_stat.st_size
-            timestamp = datetime.utcnow().isoformat() + "Z"
+            timestamp = datetime.now(timezone.utc).isoformat() + "Z"
 
             # Determine priority
             priority = self._determine_priority(file_path)
@@ -220,8 +222,11 @@ class FilesystemWatcher(BaseWatcher):
                 "priority": priority,
             }
 
-            self.create_action_file(item_data)
-            self.mark_processed(file_id)
+            # Create task file and mark as processed with file path
+            task_file = self.create_action_file(item_data)
+            # Store relative path from vault root for state tracking
+            relative_path = task_file.relative_to(self.vault_path)
+            self.mark_processed(file_id, str(relative_path))
 
         except Exception as e:
             self.logger.error(f"Error processing file {file_path}: {e}")
@@ -276,7 +281,7 @@ class FilesystemWatcher(BaseWatcher):
             # Create task filename
             slug = self._slugify(Path(filename).stem)
             task_filename = (
-                f"FILE_DROP_{datetime.utcnow().strftime('%Y%m%dT%H%M%S')}Z_{slug}.md"
+                f"FILE_DROP_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S')}Z_{slug}.md"
             )
 
             # Format file size
@@ -328,14 +333,13 @@ New file detected in monitored directory. Review and process as needed.
 [Add any additional context or notes here]
 """
 
-            # Write to Needs_Action folder
-            needs_action_dir = self.vault_path / "Needs_Action"
-            needs_action_dir.mkdir(exist_ok=True)
-
-            task_file = needs_action_dir / task_filename
+            # Write to Inbox/filesystem folder (NOT Needs_Action)
+            inbox_dir = self.get_inbox_subfolder()
+            
+            task_file = inbox_dir / task_filename
             task_file.write_text(content)
 
-            self.logger.info(f"Created task file: {task_filename}")
+            self.logger.info(f"Created task file in Inbox: {task_filename}")
             self.log_to_vault(
                 action="create_task",
                 result="success",
@@ -344,6 +348,7 @@ New file detected in monitored directory. Review and process as needed.
                     "original_file": filename,
                     "file_size": file_size,
                     "priority": priority,
+                    "location": "Inbox/filesystem",
                 },
             )
 
@@ -385,3 +390,31 @@ New file detected in monitored directory. Review and process as needed.
             self.observer.stop()
             self.observer.join()
             self.logger.info("Observer stopped")
+
+
+if __name__ == "__main__":
+    import argparse
+    import os
+    from dotenv import load_dotenv
+
+    # Load environment variables from .env file (override=True to refresh cache)
+    load_dotenv(override=True)
+
+    parser = argparse.ArgumentParser(description="File System Watcher")
+    parser.add_argument("--vault", default=os.getenv("VAULT_PATH", "vault"), help="Path to Obsidian vault")
+    parser.add_argument("--watch-dir", default=os.getenv("WATCH_DIRECTORY", "watch"), help="Directory to monitor")
+    parser.add_argument("--extensions", default=os.getenv("FILE_EXTENSIONS", "*"), help="File extensions to monitor")
+    parser.add_argument("--interval", type=int, default=int(os.getenv("FILESYSTEM_POLLING_INTERVAL", "5")), help="Check interval in seconds")
+    parser.add_argument("--state-db", default=os.getenv("STATE_DB_PATH", "state.db"), help="Path to state database")
+
+    args = parser.parse_args()
+
+    watcher = FilesystemWatcher(
+        vault_path=Path(args.vault),
+        watch_directory=args.watch_dir,
+        file_extensions=args.extensions,
+        check_interval=args.interval,
+        state_db_path=args.state_db
+    )
+
+    watcher.run()

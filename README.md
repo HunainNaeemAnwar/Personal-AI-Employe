@@ -1,239 +1,516 @@
-# Personal AI Employee - Bronze Tier
+# 🤖 Personal AI Employee - Silver Tier
 
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](http://mypy-lang.org/)
 
-**Status**: MVP Implementation (User Story 1)
-**Version**: 0.1.0
-**Python**: 3.13+
+> **Your 24/7 Autonomous AI Assistant** - Monitors emails, files, and LinkedIn messages. Processes tasks automatically. Sends emails and posts to LinkedIn. All while you sleep.
 
-## Overview
+---
 
-Personal AI Employee is an autonomous agent that manages personal and business affairs 24/7. The Bronze tier establishes the foundation with:
+## 📋 Table of Contents
 
-- **Obsidian Vault**: Structured knowledge base for task management
-- **Watcher Scripts**: Automated detection of tasks from Gmail or file system
-- **Claude Code Integration**: AI reasoning and task processing
-- **Agent Skills**: Reusable AI capabilities (email triage)
+- [Overview](#overview)
+- [What You Get](#-what-you-get)
+- [How It Works](#-how-it-works)
+- [Quick Start](#-quick-start)
+- [Agent Skills](#-agent-skills)
+- [Documentation](#-documentation)
+- [Project Structure](#-project-structure)
+- [Roadmap](#-roadmap)
+- [License](#-license)
 
-## Bronze Tier Scope
+---
 
-Bronze tier provides the minimal viable foundation:
-- ✅ Obsidian vault with folder structure
-- ✅ ONE Watcher (Gmail OR File System)
-- ✅ Claude Code reads/writes vault files
-- ✅ At least one Agent Skill
-- ⏭️ Manual Claude triggering (no automation)
+## 🎯 Overview
 
-**Time Estimate**: 8-12 hours implementation
+**Personal AI Employee** is an autonomous AI agent that manages your personal and business affairs 24/7. Built on top of Claude Code, it transforms your AI from a reactive chatbot into a proactive employee.
 
-## Prerequisites
+### **Silver Tier Features:**
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **Triple Watcher System** | Gmail, File System, LinkedIn monitoring | ✅ Complete |
+| **Email Sending** | MCP server for Gmail API with threading | ✅ Complete |
+| **LinkedIn Automation** | Message monitoring + post publishing | ✅ Complete |
+| **State Persistence** | SQLite database prevents duplicates | ✅ Complete |
+| **Approval Workflow** | Human-in-the-loop for sensitive actions | ✅ Complete |
+| **Task Planning** | Structured Plan.md files | ✅ Complete |
+| **Scheduled Tasks** | 7 automated cron jobs | ✅ Complete |
+| **8 Agent Skills** | Reusable AI capabilities | ✅ Complete |
+
+---
+
+## 🎁 What You Get
+
+### **1. Triple Watcher System**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     WATCHERS (24/7)                         │
+├─────────────────────────────────────────────────────────────┤
+│  Gmail Watcher      → Monitors inbox every 60 seconds       │
+│  File System Watcher → Monitors folder every 5 seconds      │
+│  LinkedIn Watcher   → Monitors messages every 5 minutes     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**What it does:**
+- Detects new emails, file drops, and LinkedIn messages
+- Creates task files automatically in your Obsidian vault
+- Prevents duplicates with SQLite state tracking
+- Self-healing with orchestrator (auto-restart on crash)
+
+---
+
+### **2. Email Automation**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  EMAIL AUTOMATION                           │
+├─────────────────────────────────────────────────────────────┤
+│  1. Gmail Watcher detects email → Creates task file         │
+│  2. Claude reads task → Drafts response                     │
+│  3. Approval workflow (if client email)                     │
+│  4. MCP server sends email via Gmail API                    │
+│  5. Logged to /Logs/email_sent.log                          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Features:**
+- Email threading support (In-Reply-To headers)
+- Retry logic (3 attempts with exponential backoff)
+- CC/BCC support
+- Attachment support
+
+---
+
+### **3. LinkedIn Automation**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                LINKEDIN AUTOMATION                          │
+├─────────────────────────────────────────────────────────────┤
+│  INBOUND:                                                   │
+│  - Monitor messages every 5 minutes                         │
+│  - Create task files for new messages                       │
+│  - Auto-mark as read after processing                       │
+│                                                             │
+│  OUTBOUND:                                                  │
+│  - Create business update posts                             │
+│  - Draft with hook + value + CTA structure                  │
+│  - Approval workflow before publishing                      │
+│  - Track performance metrics (views, likes, comments)       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### **4. Approval Workflow (HITL)**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              APPROVAL WORKFLOW                              │
+├─────────────────────────────────────────────────────────────┤
+│  High-Stakes Tasks → /Pending_Approval/                     │
+│                                                             │
+│  You run:                                                   │
+│  claude "approve task TASK_ID"  → Executes                  │
+│  claude "reject task TASK_ID"   → Discards with reason      │
+│                                                             │
+│  Thresholds (customizable):                                 │
+│  - Client emails → Requires approval                        │
+│  - Payments >$500 → Requires approval                       │
+│  - LinkedIn posts → Requires approval                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### **5. Scheduled Tasks (Cron Jobs)**
+
+| Task | Schedule | Purpose |
+|------|----------|---------|
+| **Morning Briefing** | Daily 8:00 AM | Overnight activity summary |
+| **Weekly LinkedIn Post** | Monday 9:00 AM | Business update draft |
+| **Daily Email Summary** | Daily 6:00 PM | End-of-day email recap |
+| **Weekly Task Review** | Friday 5:00 PM | Task completion report |
+| **Database Backup** | Daily 2:00 AM | State.db backup |
+| **System Health Check** | Every 6 hours | Watcher + DB health |
+| **Monthly Report** | 1st of month 9:00 AM | Monthly activity report |
+
+---
+
+## 🔄 How It Works
+
+### **Complete Workflow:**
+
+```
+┌─────────────┐
+│   WATCHERS  │
+│  (Detect)   │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ /Inbox/     │
+│ (Temporary) │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ inbox_triage│
+│ (Move)      │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ /Needs_Action/ │
+│ (Ready)     │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ inbox_      │
+│ processor   │
+│ (Prioritize)│
+└──────┬──────┘
+       │
+       ├──────────────┬──────────────┐
+       │              │              │
+       ▼              ▼              ▼
+┌──────────┐  ┌──────────────┐  ┌──────────────┐
+│ Simple   │  │ Complex      │  │ Needs        │
+│ Task     │  │ Multi-Step   │  │ Approval     │
+│          │  │              │  │              │
+│ Execute  │  │ task_planner │  │ approval_    │
+│ Directly │  │ → Plan.md    │  │ workflow     │
+└────┬─────┘  └──────┬───────┘  └──────┬───────┘
+     │               │                  │
+     │               ▼                  ▼
+     │         Execute Steps      You Approve
+     │               │                  │
+     └──────────────┼──────────────────┘
+                    │
+                    ▼
+             ┌─────────────┐
+             │ Log Result  │
+             └──────┬──────┘
+                    │
+                    ▼
+             ┌─────────────┐
+             │ Move to     │
+             │ /Done/      │
+             └──────┬──────┘
+                    │
+                    ▼
+             ┌─────────────┐
+             │ Update      │
+             │ Dashboard   │
+             └─────────────┘
+```
+
+---
+
+## 🚀 Quick Start
+
+### **Prerequisites:**
 
 - Python 3.13+
 - Obsidian v1.10.6+
 - Claude Code CLI
-- uv package manager: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- For Gmail Watcher: Google Cloud project with Gmail API enabled
-- For File System Watcher: Designated drop folder
+- Google Cloud project (for Gmail API)
+- LinkedIn account credentials
 
-## Quick Start
-
-### 1. Install Dependencies
+### **Step 1: Clone & Install**
 
 ```bash
-# Create virtual environment and install dependencies
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-uv pip install -e .
+# Clone repository
+git clone https://github.com/HunainNaeemAnwar/Personal-AI-Employe.git
+cd personal-ai-employee
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -e .
 ```
 
-### 2. Configure Environment
+### **Step 2: Configure MCP Servers**
+
+#### **A. Playwright MCP (For LinkedIn Automation)**
 
 ```bash
-# Copy example environment file
+# Add Playwright MCP via Qwen
+qwen mcp add playwright npx "@playwright/mcp@latest"
+```
+
+**Output:**
+```
+MCP server "playwright" is already configured within user settings.
+MCP server "playwright" updated in user settings.
+```
+
+This enables:
+- ✅ LinkedIn message sending
+- ✅ Browser automation
+- ✅ Screenshot capabilities
+- ✅ Web interaction for tasks
+
+#### **B. Email MCP (For Gmail Sending)**
+
+```bash
+# Add to ~/.config/claude-code/mcp.json:
+{
+  "mcpServers": {
+    "email-sender": {
+      "command": "python",
+      "args": ["/ABSOLUTE/PATH/personal-ai-employee/mcp_servers/email_sender/server.py"],
+      "env": {
+        "GMAIL_CREDENTIALS_PATH": "/home/user/.credentials/gmail-credentials.json",
+        "GMAIL_TOKEN_PATH": "/home/user/.credentials/gmail-token.json"
+      }
+    }
+  }
+}
+```
+
+See `docs/mcp_server_setup.md` for detailed instructions.
+
+### **Step 3: Configure Environment**
+
+```bash
+# Copy environment template
 cp .env.example .env
 
-# Edit .env with your paths and credentials
+# Edit with your values
 nano .env
 ```
 
-### 3. Create Obsidian Vault
+**Required Settings:**
+```bash
+VAULT_PATH=/home/user/AI_Employee_Vault
+GMAIL_CREDENTIALS_PATH=/home/user/.credentials/gmail-credentials.json
+GMAIL_TOKEN_PATH=/home/user/.credentials/gmail-token.json
+LINKEDIN_USERNAME=your@email.com
+LINKEDIN_PASSWORD=your_password
+ORCHESTRATOR_WATCHERS=gmail,filesystem,linkedin
+```
+
+### **Step 4: Create Vault**
 
 ```bash
-# Automated setup
+# Automated vault creation
 python vault_setup/create_vault.py --path ~/AI_Employee_Vault
 ```
 
-### 4. Run Watcher
+This creates:
+- `/Inbox/`, `/Needs_Action/`, `/Done/`, `/Plans/`, `/Pending_Approval/` folders
+- `Dashboard.md` (auto-updated activity summary)
+- `Company_Handbook.md` (rules and approval thresholds)
+
+### **Step 5: Setup Gmail OAuth**
+
+See [`docs/gmail_api_setup.md`](docs/gmail_api_setup.md) for detailed instructions.
+
+**Quick version:**
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create new project
+3. Enable Gmail API
+4. Create OAuth 2.0 credentials
+5. Download `gmail-credentials.json`
+6. Run watcher once to generate token
+
+### **Step 6: Run Orchestrator**
 
 ```bash
-# Gmail Watcher
-python watchers/gmail_watcher.py
-
-# OR File System Watcher
-python watchers/filesystem_watcher.py
+# Start all watchers
+python watchers/orchestrator.py
 ```
 
-### 5. Process Tasks with Claude
+**What happens:**
+- Gmail, File System, and LinkedIn watchers start
+- Health monitoring begins (heartbeat every 60s)
+- Auto-restart on crash enabled
+- State database initialized
+
+### **Step 7: Install Scheduled Tasks (Optional)**
 
 ```bash
+# Linux/Mac (cron)
+python -m scheduler.cron_setup setup
+
+# Windows (Task Scheduler)
+python -m scheduler.task_scheduler_setup setup
+```
+
+### **Step 8: Process Tasks**
+
+```bash
+# Triage inbox (Inbox → Needs_Action)
 cd ~/AI_Employee_Vault
-claude "Process all tasks in /Needs_Action"
+claude "triage inbox"
+
+# Process all tasks
+claude "process all tasks in Needs_Action"
 ```
 
-## Project Structure
+---
+
+## 🧠 Agent Skills
+
+**8 specialized AI capabilities** that Claude automatically applies:
+
+| Skill | Purpose | Trigger Command |
+|-------|---------|-----------------|
+| **`inbox_triage`** | Move files from /Inbox/ → /Needs_Action/ | `"triage inbox"` |
+| **`inbox_processor`** | Prioritize & process tasks | `"process tasks in Needs_Action"` |
+| **`vault_manager`** | Obsidian file operations | Internal use |
+| **`task_planner`** | Create Plan.md for complex tasks | `"create plan for TASK_ID"` |
+| **`email_handler`** | Send emails via Gmail MCP | `"send email to..."` |
+| **`social_poster`** | Create/publish LinkedIn posts | `"create LinkedIn post"` |
+| **`approval_workflow`** | Manage /Pending_Approval/ | `"approve task TASK_ID"` |
+| **`scheduler`** | Run scheduled tasks | `"setup cron jobs"` |
+
+**Location:** `.claude/skills/*/SKILL.md`
+
+---
+
+## 📚 Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [`docs/setup_guide.md`](docs/setup_guide.md) | Complete setup walkthrough |
+| [`docs/gmail_api_setup.md`](docs/gmail_api_setup.md) | Gmail OAuth configuration |
+| [`docs/linkedin_api_setup.md`](docs/linkedin_api_setup.md) | LinkedIn integration setup |
+| [`docs/mcp_server_setup.md`](docs/mcp_server_setup.md) | Email MCP server config |
+| [`docs/scheduling_setup.md`](docs/scheduling_setup.md) | Cron/Task Scheduler setup |
+| [`docs/troubleshooting.md`](docs/troubleshooting.md) | Common issues & solutions |
+
+---
+
+## 📁 Project Structure
 
 ```
 personal-ai-employee/
 ├── .claude/
-│   └── skills/
-│       └── email-triage/
-│           └── SKILL.md
+│   └── skills/              # 8 Agent Skills (SKILL.md files)
+│       ├── vault_manager/
+│       ├── inbox_processor/
+│       ├── inbox_triage/
+│       ├── task_planner/
+│       ├── email_handler/
+│       ├── social_poster/
+│       ├── approval_workflow/
+│       └── scheduler/
 ├── watchers/
-│   ├── __init__.py
-│   ├── base_watcher.py
-│   ├── gmail_watcher.py
-│   ├── filesystem_watcher.py
-│   └── config.py
+│   ├── base_watcher.py      # Abstract base class
+│   ├── gmail_watcher.py     # Gmail monitoring
+│   ├── filesystem_watcher.py # File system monitoring
+│   ├── linkedin_watcher.py  # LinkedIn monitoring
+│   ├── orchestrator.py      # Multi-watcher manager
+│   ├── state_manager.py     # SQLite state persistence
+│   └── config.py            # Configuration
+├── scheduler/
+│   ├── cron_setup.py        # Linux/Mac cron setup
+│   ├── task_scheduler_setup.py # Windows Task Scheduler
+│   └── task_executor.py     # Scheduled task runner
+├── mcp_servers/
+│   └── email_sender/
+│       └── server.py        # Gmail MCP server
 ├── vault_setup/
-│   ├── __init__.py
-│   ├── create_vault.py
-│   ├── folder_structure.py
+│   ├── create_vault.py      # Vault creation script
 │   └── templates/
 │       ├── dashboard_template.md
-│       ├── handbook_template.md
-│       └── task_template.md
+│       ├── company_handbook_template.md
+│       ├── task_template.md
+│       └── plan_template.md
 ├── tests/
+│   ├── unit/
 │   └── integration/
-├── docs/
-│   ├── setup_guide.md
-│   ├── gmail_api_setup.md
-│   └── troubleshooting.md
-├── pyproject.toml
-├── .env.example
-└── README.md
+├── docs/                    # Documentation
+├── .env.example             # Environment template
+├── scheduled_tasks.yaml     # Cron job config
+├── pyproject.toml           # Python project config
+└── README.md                # This file
 ```
 
-## Documentation
+---
 
-- **Setup Guide**: `docs/setup_guide.md` - Detailed setup instructions
-- **Gmail API Setup**: `docs/gmail_api_setup.md` - OAuth2 credential setup
-- **Troubleshooting**: `docs/troubleshooting.md` - Common issues and solutions
-- **Quickstart**: `specs/001-bronze-tier/quickstart.md` - Step-by-step validation
+## 🗺️ Roadmap
 
-## Bronze Tier Completion Checklist
+### **🥉 Bronze Tier** (Complete)
+- ✅ Single watcher (Gmail OR File System)
+- ✅ Basic task detection
+- ✅ Claude Code integration
+- ✅ 1 Agent Skill
 
-Use this checklist to verify your Bronze tier implementation is complete and functional:
+### **🥈 Silver Tier** (Complete - You Are Here)
+- ✅ Triple watcher system
+- ✅ Email sending via MCP
+- ✅ LinkedIn automation
+- ✅ State persistence
+- ✅ Approval workflow
+- ✅ Scheduled tasks
+- ✅ 8 Agent Skills
 
-### Vault Setup
-- [ ] Vault created at configured path with all 8 folders
-- [ ] Dashboard.md and Company_Handbook.md templates present
-- [ ] All folders writable by watcher process
-- [ ] Vault opens successfully in Obsidian
+### **🥇 Gold Tier** (Next)
+- ⏳ Odoo ERP integration
+- ⏳ Social media monitoring (Twitter, Facebook)
+- ⏳ Ralph Wiggum autonomous loop
+- ⏳ CEO daily briefing
 
-### Watcher Configuration
-- [ ] .env file configured with correct paths
-- [ ] Watcher type selected (gmail or filesystem)
-- [ ] For Gmail: OAuth credentials downloaded and configured
-- [ ] For Gmail: Token generated successfully after first auth
-- [ ] For File System: Watch directory created and accessible
-- [ ] Watcher starts without errors in test mode
+### **💎 Platinum Tier** (Future)
+- ⏳ Cloud deployment (AWS/GCP)
+- ⏳ 24/7 monitoring dashboard
+- ⏳ Multi-user support
+- ⏳ Advanced analytics
 
-### Task Detection
-- [ ] Watcher detects new items (emails or files)
-- [ ] Task files created in /Needs_Action with proper YAML frontmatter
-- [ ] Task filenames follow naming convention (TYPE_TIMESTAMP_slug.md)
-- [ ] No duplicate task files created for same item
-- [ ] Logs written to /Logs folder in JSON format
+---
 
-### Claude Code Integration
-- [ ] Claude Code CLI installed and authenticated
-- [ ] Claude can read task files from /Needs_Action
-- [ ] Claude can create plan files in /Plans
-- [ ] Claude can move completed tasks to /Done
-- [ ] Claude respects Company_Handbook.md rules
+## 🤝 Contributing
 
-### Agent Skills
-- [ ] email-triage skill present in .claude/skills/
-- [ ] Skill has valid YAML frontmatter
-- [ ] Skill includes Instructions and Examples sections
-- [ ] Claude automatically applies skill when processing email tasks
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-### End-to-End Workflow
-- [ ] Complete workflow tested: detection → task file → Claude processing → plan creation → task completion
-- [ ] Watcher runs continuously for at least 1 hour without crashes
-- [ ] Multiple tasks processed successfully
-- [ ] Error handling works (watcher continues after transient failures)
+---
 
-### Documentation
-- [ ] Setup guide reviewed and accurate
-- [ ] Troubleshooting guide covers common issues
-- [ ] Gmail API setup guide (if using Gmail Watcher) followed successfully
+## 📄 License
 
-**Bronze Tier Complete**: All checkboxes above should be checked before moving to Silver tier.
-
-## Next Steps: Silver Tier Preview
-
-After Bronze tier is working, Silver tier adds:
-
-### Silver Tier Enhancements (20-30 hours)
-
-**Dual Watchers**:
-- Run both Gmail and File System watchers simultaneously
-- Unified task queue in /Needs_Action
-- Separate log streams for each watcher
-
-**Email Sending (MCP Server)**:
-- Custom MCP server for sending emails via Gmail API
-- Claude can draft and send email responses
-- Email templates for common responses
-- Sent email tracking in vault
-
-**Human-in-the-Loop (HITL) Approval**:
-- /Pending_Approval folder for tasks requiring approval
-- Approval thresholds from Company_Handbook.md enforced
-- Approval workflow: pending → approved/rejected → execution
-- Notification system for pending approvals
-
-**Persistent State**:
-- SQLite database for processed_items tracking
-- Watcher state persists across restarts
-- No duplicate processing after restart
-- Task history and audit trail
-
-**Enhanced Skills**:
-- file-processor skill for document analysis
-- meeting-scheduler skill for calendar integration
-- expense-tracker skill for financial tasks
-
-**Testing & Validation**:
-- Automated integration tests (pytest)
-- 24-hour continuous operation validation
-- Performance benchmarks (tasks/hour, latency)
-- Error recovery testing
-
-### Gold Tier (40+ hours)
-- Odoo ERP integration for business operations
-- Social media monitoring and posting
-- Ralph Wiggum autonomous loop (self-directed task discovery)
-- CEO daily briefing generation
-
-### Platinum Tier (60+ hours)
-- Cloud deployment (AWS/GCP)
-- 24/7 operation with monitoring
-- Multi-user support
-- Advanced analytics dashboard
-
-## Support
-
-- **Issues**: Report bugs on GitHub Issues
-- **Documentation**: See `/docs` folder for detailed guides
-- **Specifications**: See `/specs/001-bronze-tier/` for complete design documents
-
-## License
-
-MIT License - see [LICENSE](LICENSE) file for details.
+**MIT License** - See [LICENSE](LICENSE) file for details.
 
 Open source and free to use, modify, and distribute.
+
+---
+
+## 📞 Support
+
+- **Issues**: Report bugs on [GitHub Issues](https://github.com/your-username/personal-ai-employee/issues)
+- **Discussions**: Ask questions on [GitHub Discussions](https://github.com/your-username/personal-ai-employee/discussions)
+- **Documentation**: See `/docs` folder
+
+---
+
+## 🎉 Success Metrics
+
+**After setup, you should see:**
+
+| Metric | Target | How to Verify |
+|--------|--------|---------------|
+| Email detection | <2 minutes | Send test email, check /Inbox/gmail/ |
+| File detection | <30 seconds | Drop file, check /Inbox/filesystem/ |
+| LinkedIn detection | <5 minutes | Send LinkedIn message, check /Inbox/linkedin/ |
+| Email sending | <5 seconds | Approve task, verify sent in Gmail |
+| No duplicates | 100% | Restart watchers, verify no duplicate tasks |
+| Uptime | >99% | Check /Logs/orchestrator.log after 24h |
+
+---
+
+**Built with ❤️ by Hunain**  
+**Version**: 0.2.0 (Silver Tier)  
+**Last Updated**: 2026-03-15

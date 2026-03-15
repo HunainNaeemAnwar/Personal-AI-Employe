@@ -8,9 +8,11 @@ files in the Obsidian vault when new items are detected.
 import json
 import logging
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional, Set
+
+from watchers.state_manager import StateManager
 
 
 class BaseWatcher(ABC):
@@ -23,12 +25,13 @@ class BaseWatcher(ABC):
         logger: Logger instance for this watcher
     """
 
-    def __init__(self, vault_path: Path, check_interval: int = 60):
+    def __init__(self, vault_path: Path, check_interval: int = 60, state_db_path: str = "state.db"):
         """Initialize the base watcher.
 
         Args:
             vault_path: Path to the Obsidian vault
             check_interval: Seconds between checks (default: 60)
+            state_db_path: Path to SQLite state database (default: state.db)
 
         Raises:
             ValueError: If vault_path doesn't exist or isn't a directory
@@ -40,10 +43,21 @@ class BaseWatcher(ABC):
 
         self.vault_path = vault_path
         self.check_interval = check_interval
-        self.processed_items: Set[str] = set()
+        self.processed_items: Set[str] = set()  # In-memory cache for performance
 
-        # Setup logging
+        # Setup logging first
         self.logger = self._setup_logging()
+
+        # Get heartbeat interval from environment or use default
+        import os
+        self.heartbeat_interval = int(os.getenv("WATCHER_HEARTBEAT_INTERVAL", "60"))
+
+        # Initialize StateManager for persistent state tracking
+        self.state_manager = StateManager(db_path=state_db_path)
+        self.logger.info(f"StateManager initialized with database: {state_db_path}")
+
+        # Get watcher source type from class name (e.g., "GmailWatcher" -> "gmail")
+        self.source_type = self.__class__.__name__.replace("Watcher", "").lower()
 
     def _setup_logging(self) -> logging.Logger:
         """Setup logging for this watcher.
@@ -79,7 +93,7 @@ class BaseWatcher(ABC):
         """
         # Build log entry with timestamp and watcher type
         log_entry: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
             # Extract watcher type from class name (e.g., "GmailWatcher" -> "gmail")
             "watcher_type": self.__class__.__name__.replace("Watcher", "").lower(),
             "action": action,
@@ -97,7 +111,7 @@ class BaseWatcher(ABC):
         log_dir = self.vault_path / "Logs"
         log_dir.mkdir(exist_ok=True)
 
-        today = datetime.utcnow().strftime("%Y-%m-%d")
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{today}.json"
 
         # Read existing logs or create new array if file doesn't exist
@@ -121,21 +135,50 @@ class BaseWatcher(ABC):
     def is_processed(self, item_id: str) -> bool:
         """Check if an item has already been processed.
 
+        Uses both in-memory cache and persistent StateManager for duplicate detection.
+
         Args:
             item_id: Unique identifier for the item
 
         Returns:
             True if item has been processed, False otherwise
         """
-        return item_id in self.processed_items
+        # Check in-memory cache first (fast path)
+        if item_id in self.processed_items:
+            return True
 
-    def mark_processed(self, item_id: str) -> None:
+        # Check persistent state database (handles restarts)
+        if self.state_manager.check_processed(self.source_type, item_id):
+            # Update in-memory cache for future checks
+            self.processed_items.add(item_id)
+            return True
+
+        return False
+
+    def mark_processed(self, item_id: str, task_file_path: Optional[str] = None) -> None:
         """Mark an item as processed to prevent duplicates.
+
+        Persists to both in-memory cache and StateManager database.
 
         Args:
             item_id: Unique identifier for the item
+            task_file_path: Optional relative path to created task file
         """
+        # Add to in-memory cache
         self.processed_items.add(item_id)
+
+        # Persist to database
+        row_id = self.state_manager.insert_item(
+            source=self.source_type,
+            source_id=item_id,
+            status="processed",
+            task_file_path=task_file_path
+        )
+
+        if row_id:
+            self.logger.debug(f"Marked item as processed: {item_id} (DB ID: {row_id})")
+        else:
+            self.logger.warning(f"Failed to persist processed item: {item_id}")
 
     @abstractmethod
     def check_for_updates(self) -> int:
@@ -183,6 +226,13 @@ class BaseWatcher(ABC):
         self.logger.info(f"Monitoring with check interval: {self.check_interval} seconds")
         self.logger.info(f"Vault path: {self.vault_path}")
 
+        # Write initial heartbeat immediately on startup
+        self._write_heartbeat()
+
+        # Initialize heartbeat tracking
+        last_heartbeat = time.time()
+        heartbeat_interval = self.heartbeat_interval  # Use configurable interval
+
         try:
             # Infinite loop - runs until interrupted or fatal error
             while True:
@@ -210,8 +260,22 @@ class BaseWatcher(ABC):
                         error_message=str(e),
                     )
 
+                # Write heartbeat log every 60 seconds for health monitoring
+                current_time = time.time()
+                if current_time - last_heartbeat >= heartbeat_interval:
+                    self._write_heartbeat()
+                    last_heartbeat = current_time
+
                 # Wait before next check (prevents API rate limiting and excessive CPU usage)
-                time.sleep(self.check_interval)
+                # Sleep in small increments to allow heartbeat writes during long check intervals
+                sleep_end = time.time() + self.check_interval
+                while time.time() < sleep_end:
+                    time.sleep(min(10, sleep_end - time.time()))  # Sleep in 10-second increments
+                    
+                    # Check if it's time to write heartbeat during the sleep period
+                    if time.time() - last_heartbeat >= heartbeat_interval:
+                        self._write_heartbeat()
+                        last_heartbeat = time.time()
 
         except KeyboardInterrupt:
             # Graceful shutdown on Ctrl+C
@@ -225,3 +289,40 @@ class BaseWatcher(ABC):
                 error_message=str(e),
             )
             raise
+
+    def _write_heartbeat(self) -> None:
+        """Write heartbeat file for health monitoring by orchestrator.
+
+        Creates/updates a heartbeat file in /Logs with current timestamp.
+        The orchestrator reads these files to detect crashed watchers.
+        """
+        log_dir = self.vault_path / "Logs"
+        log_dir.mkdir(exist_ok=True)
+
+        heartbeat_file = log_dir / f"{self.source_type}_watcher_heartbeat.txt"
+
+        try:
+            with open(heartbeat_file, "w") as f:
+                # Write ISO format timestamp with timezone (+00:00)
+                # Don't add "Z" suffix as isoformat() already includes timezone
+                f.write(datetime.now(timezone.utc).isoformat())
+
+            self.logger.debug(f"Heartbeat written to {heartbeat_file}")
+
+        except Exception as e:
+            self.logger.warning(f"Failed to write heartbeat: {e}")
+
+    def get_inbox_subfolder(self) -> Path:
+        """Get the inbox subfolder path for this watcher type.
+
+        Returns:
+            Path to the inbox subfolder (e.g., /Inbox/gmail/)
+        """
+        inbox_dir = self.vault_path / "Inbox"
+        inbox_dir.mkdir(exist_ok=True)
+
+        # Create source-specific subfolder (gmail, filesystem, linkedin)
+        source_dir = inbox_dir / self.source_type
+        source_dir.mkdir(exist_ok=True)
+
+        return source_dir

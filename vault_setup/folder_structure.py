@@ -49,6 +49,29 @@ def create_vault_folders(vault_path: Path) -> List[Path]:
     return created_folders
 
 
+def create_watch_directory(vault_path: Path) -> Path:
+    """Create the watch directory for file system watcher.
+
+    Creates AI_Employee_Dropbox folder in the same directory as the vault.
+    This is where users drop files to be processed by the AI Employee.
+
+    Args:
+        vault_path: Path to the Obsidian vault
+
+    Returns:
+        Path to created watch directory
+
+    Raises:
+        OSError: If directory creation fails
+    """
+    # Create watch directory in same parent as vault
+    parent_dir = vault_path.parent
+    watch_dir = parent_dir / "AI_Employee_Dropbox"
+    watch_dir.mkdir(parents=True, exist_ok=True)
+    
+    return watch_dir
+
+
 def validate_vault_structure(vault_path: Path) -> bool:
     """Validate that all required folders exist in the vault.
 
